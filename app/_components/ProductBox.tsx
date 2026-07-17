@@ -2,6 +2,7 @@
 
 import { ReactElement, useState } from "react";
 import FlightSearch from "./FlightSearch";
+import HotelSearch from "./HotelSearch";
 // import HotelSearch from "./HotelSearch";
 
 interface TabItem {
@@ -86,7 +87,7 @@ function ProductBox() {
       <div className="w-full bg-white dark:bg-slate-900 rounded-3xl   shadow-2xl shadow-slate-900/10 dark:shadow-black/40 border border-slate-100 dark:border-slate-800 p-6 md:p-8 transition-colors duration-300">
         <div className="animate-fadeIn">
           {activeTab === 1 && <FlightSearch />}
-          {/* {activeTab === 2 && <HotelSearch />} */}
+          {activeTab === 2 && <HotelSearch />}
         </div>
 
         <div className="flex items-center justify-center mt-6">

@@ -1,3 +1,4 @@
+import Header from "./_components/Header";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Vazirmatn } from "next/font/google";
@@ -21,7 +22,7 @@ export default function RootLayout({
     >
       <body className="bg-[#f5f7fc] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-sky-200 selection:text-slate-900">
         <Providers>
-          {/* <Header /> */}
+          <Header />
           {children}
           {/* <Footer /> */}
         </Providers>
