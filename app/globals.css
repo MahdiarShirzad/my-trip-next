@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* MyTrip DatePicker overrides */
+.mytrip-datepicker-popper {
+  z-index: 50 !important;
+}
+
+.mytrip-datepicker.react-datepicker {
+  font-family: var(--font-vazirmatn), sans-serif;
+  border: 1px solid rgb(241 245 249);
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px -8px rgb(15 23 42 / 0.15);
+  overflow: hidden;
+}
+
+.dark .mytrip-datepicker.react-datepicker {
+  background-color: rgb(30 41 59);
+  border-color: rgb(51 65 85);
+}
+
+.mytrip-datepicker .react-datepicker__header {
+  background-color: #7167ff;
+  border-bottom: none;
+  padding-top: 1rem;
+}
+
+.mytrip-datepicker .react-datepicker__current-month,
+.mytrip-datepicker .react-datepicker__day-name {
+  color: white;
+  font-weight: 600;
+}
+
+.dark .mytrip-datepicker .react-datepicker__day {
+  color: rgb(226 232 240);
+}
+
+.mytrip-datepicker .react-datepicker__day:hover {
+  background-color: #7167ff26;
+  border-radius: 9999px;
+}
+
+.mytrip-datepicker .react-datepicker__day--selected,
+.mytrip-datepicker .react-datepicker__day--keyboard-selected {
+  background-color: #7167ff;
+  color: white;
+  border-radius: 9999px;
+}
+
+.mytrip-datepicker .react-datepicker__day--disabled {
+  color: rgb(203 213 225);
+}
+
+.mytrip-datepicker .react-datepicker__navigation-icon::before {
+  border-color: white;
+}
