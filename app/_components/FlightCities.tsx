@@ -17,7 +17,7 @@ export default function FlightCities() {
     <div className="flex items-stretch relative max-lg:w-full w-full lg:flex-1">
       {/* Origin */}
       <div className="flex-1 bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 border border-transparent focus-within:border-[#7167FF]/40 focus-within:bg-[#7167FF0d] transition-colors duration-150">
-        <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
+        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <p className="text-xs font-semibold uppercase tracking-wide">From</p>
           <svg
             className="w-4 h-4"
@@ -35,7 +35,7 @@ export default function FlightCities() {
           </svg>
         </div>
         <input
-          className="font-bold text-lg mt-1.5 block bg-transparent focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:font-semibold w-full text-slate-800 dark:text-white"
+          className="font-bold text-lg mt-1.5 block bg-transparent focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:font-semibold w-full text-slate-800 dark:text-white"
           placeholder="Origin"
           value={beginningCity}
           onChange={(e) => setBeginningCity(e.target.value)}
@@ -52,7 +52,7 @@ export default function FlightCities() {
           ${
             canSwap
               ? "border-[#7167FF] text-[#7167FF] hover:bg-[#7167FF] hover:text-white cursor-pointer shadow-md shadow-[#7167FF]/15"
-              : "border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+              : "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed"
           }`}
       >
         <svg
@@ -73,7 +73,7 @@ export default function FlightCities() {
 
       {/* Destination */}
       <div className="flex-1 bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 border border-transparent focus-within:border-[#7167FF]/40 focus-within:bg-[#7167FF0d] transition-colors duration-150">
-        <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
+        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
           <p className="text-xs font-semibold uppercase tracking-wide">To</p>
           <svg
             className="w-4 h-4"
@@ -91,7 +91,7 @@ export default function FlightCities() {
           </svg>
         </div>
         <input
-          className="font-bold text-lg mt-1.5 block bg-transparent focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:font-semibold w-full text-slate-800 dark:text-white"
+          className="font-bold text-lg mt-1.5 block bg-transparent focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:font-semibold w-full text-slate-800 dark:text-white"
           placeholder="Destination"
           value={destinationCity}
           onChange={(e) => setDestinationCity(e.target.value)}

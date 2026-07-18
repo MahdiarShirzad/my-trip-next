@@ -45,6 +45,11 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
       <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
         <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
           <FlightSearch />
+          <div className="flex items-center justify-center mt-6">
+            <button className="bg-[#7167FF] hover:bg-[#5b51e6] text-white font-bold px-10 py-3.5 rounded-full shadow-lg shadow-[#7167FF]/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm tracking-wide">
+              Search Available Options
+            </button>
+          </div>
         </div>
       </div>
 
