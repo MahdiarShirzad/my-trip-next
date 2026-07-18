@@ -1,6 +1,7 @@
 import Features from "./_components/Features";
 import FlightSection from "./_components/FlightSection";
 import Hero from "./_components/Hero";
+import HotelSection from "./_components/HotelSection";
 import ProductBox from "./_components/ProductBox";
 
 export default function HomePage() {
@@ -10,6 +11,7 @@ export default function HomePage() {
       <ProductBox />
       <Features />
       <FlightSection />
+      <HotelSection />
     </main>
   );
 }

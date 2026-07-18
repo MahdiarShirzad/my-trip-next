@@ -2,10 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode, SVGProps } from "react";
 
-// Server component on purpose — no useTheme(), no client state. Dark mode is
-// handled entirely by Tailwind's `dark:` variant off the <html> class that
-// next-themes sets, so this never has to ship JS to the browser.
-
 const COMPANY_LINKS = [
   { label: "Home", href: "/" },
   { label: "Flights", href: "/flights" },
@@ -24,7 +20,6 @@ export default function Footer() {
 
   return (
     <footer className="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-      {/* soft ambient glow, purely decorative */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#7167FF]/10 blur-3xl dark:bg-[#7167FF]/20"
@@ -32,12 +27,9 @@ export default function Footer() {
 
       <div className="container relative mx-auto max-w-[1320px] px-6 pb-8 pt-20 sm:px-10 lg:px-6">
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1fr]">
-          {/* brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-block">
               <span className="relative block h-9 w-40">
-                {/* Swaps automatically with the theme. Point these at your
-                    actual light/dark logo files in public/images. */}
                 <Image
                   src="/images/logo-dark.png"
                   alt="MyTrip"
@@ -99,7 +91,6 @@ export default function Footer() {
           <FooterLinkGroup title="Company" links={COMPANY_LINKS} />
           <FooterLinkGroup title="Support" links={SUPPORT_LINKS} />
 
-          {/* newsletter */}
           <div>
             <p className="font-interBold text-sm uppercase tracking-wide text-slate-800 dark:text-slate-100">
               Stay in the loop
@@ -108,8 +99,6 @@ export default function Footer() {
               Fare drops and trip ideas, straight to your inbox. No spam.
             </p>
 
-            {/* Presentational only — wire this input up to a client
-                component with an onSubmit handler when the API exists. */}
             <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 pl-3 dark:border-slate-700 dark:bg-slate-800">
               <MailIcon className="h-4 w-4 shrink-0 text-slate-400" />
               <input
@@ -128,8 +117,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* signature flight-path divider — echoes the route line on the
-            flight cards so the brand mark carries through the whole page */}
         <div aria-hidden="true" className="my-10 flex items-center">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#7167FF]" />
           <span className="mx-1 h-px flex-1 border-t border-dashed border-slate-300 dark:border-slate-700" />
@@ -138,7 +125,6 @@ export default function Footer() {
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#f96768]" />
         </div>
 
-        {/* bottom bar */}
         <div className="flex flex-col-reverse items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
           <p className="font-inter text-xs text-slate-400 dark:text-slate-500">
             © {year}{" "}
