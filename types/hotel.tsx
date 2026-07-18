@@ -20,6 +20,7 @@ export type Hotel = {
   starRating: number;
   rooms: Room[];
   amenities: string[];
+  images: string[];
   checkInTime: string;
   checkOutTime: string;
   totalRooms: number;
@@ -75,6 +76,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Pool", "Spa", "Free parking", "Restaurant"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "14:00",
     checkOutTime: "12:00",
     totalRooms: 4,
@@ -118,6 +123,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Gym", "Restaurant", "Free parking"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "14:00",
     checkOutTime: "12:00",
     totalRooms: 3,
@@ -161,6 +170,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Rooftop terrace", "Restaurant"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "13:00",
     checkOutTime: "11:00",
     totalRooms: 3,
@@ -204,6 +217,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Private beach", "Pool", "Spa", "Restaurant"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "15:00",
     checkOutTime: "12:00",
     totalRooms: 3,
@@ -239,6 +256,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Garden", "Free parking"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "14:00",
     checkOutTime: "12:00",
     totalRooms: 2,
@@ -282,6 +303,10 @@ export const sampleHotels: Hotel[] = [
       },
     ],
     amenities: ["Restaurant", "Free parking", "Shuttle service"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1200&auto=format",
+    ],
     checkInTime: "14:00",
     checkOutTime: "12:00",
     totalRooms: 3,

@@ -5,6 +5,9 @@ export default function HotelCardSkeleton() {
 
   return (
     <div className="w-[305px] rounded-2xl overflow-hidden animate-pulse bg-white shadow-md shadow-slate-100 dark:bg-slate-800 dark:shadow-none">
+      {/* Image */}
+      <div className={`w-full h-[160px] ${pulse}`} />
+
       {/* Header */}
       <div className="flex items-start justify-between px-5 pt-4 gap-2">
         <div className="space-y-2 min-w-0 flex-1">
