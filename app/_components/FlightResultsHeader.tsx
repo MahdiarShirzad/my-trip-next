@@ -10,7 +10,7 @@ export default function FlightResultsHeader({
   sortSlot,
 }: FlightResultsHeaderProps) {
   return (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white px-7 py-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 transition-colors duration-300">
+    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-slate-50/60 px-6 py-5 dark:border-slate-800 dark:bg-slate-950/40 sm:px-7">
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7167FF]/10 text-[#7167FF]">
           <svg

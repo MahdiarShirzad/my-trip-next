@@ -98,7 +98,7 @@ export default function FlightFilters({
 
   if (!isOpen) {
     return (
-      <aside className="flex w-full shrink-0 items-center justify-between rounded-3xl border border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-[76px] lg:flex-col lg:items-center lg:justify-start lg:gap-5 lg:py-6">
+      <aside className="flex w-full shrink-0 items-center justify-between rounded-[2rem] border border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-[76px] lg:flex-col lg:items-center lg:justify-start lg:gap-5 lg:py-6">
         <button
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-[#7167FF]/10 hover:text-[#7167FF] dark:text-slate-200"
@@ -128,7 +128,7 @@ export default function FlightFilters({
 
   return (
     <aside
-      className={`w-full shrink-0 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-opacity duration-300 dark:border-slate-800 dark:bg-slate-900 lg:w-[300px] sm:p-7 ${
+      className={`w-full shrink-0 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition-opacity duration-300 dark:border-slate-800 dark:bg-slate-900 lg:w-[300px] sm:p-7 ${
         isPending ? "opacity-50 pointer-events-none" : "opacity-100"
       }`}
     >
