@@ -21,7 +21,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${vazirmatn.variable} antialiased`}
     >
-      <body className="bg-[#f5f7fc] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-sky-200 selection:text-slate-900">
+      <body className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-blue-200 dark:selection:bg-sky-800 selection:text-slate-900 dark:selection:text-slate-100">
         <Providers>
           <Header />
           {children}
