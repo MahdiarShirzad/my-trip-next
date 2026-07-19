@@ -141,7 +141,7 @@ export default function FlightResultCard({ flight }: FlightResultCardProps) {
           </div>
 
           <a
-            href={soldOut ? undefined : `/flights/${flight._id}`}
+            href={soldOut ? undefined : `/flights/${flight._id}/booking`}
             aria-disabled={soldOut}
             className={`group/btn flex shrink-0 items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold transition-all duration-200 ${
               soldOut

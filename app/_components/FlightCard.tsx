@@ -10,9 +10,6 @@ import {
 } from "@/lib/flight-utils";
 import { Flight } from "@/types/flight";
 
-// Server component on purpose: everything it needs (theme colors, layout) is
-// resolved by Tailwind's `dark:` variant off the <html> class next-themes
-// sets, so this never has to import useTheme() or become "use client".
 export default function FlightCard({ flight }: { flight: Flight }) {
   const { initials, gradient } = getAirlineAvatar(flight.airline);
   const status = STATUS_STYLES[flight.status] ?? STATUS_STYLES.scheduled;
@@ -145,7 +142,7 @@ export default function FlightCard({ flight }: { flight: Flight }) {
       </div>
 
       <Link
-        href={`/flights/${flight._id}`}
+        href={`/flights/${flight._id}/booking`}
         aria-disabled={isSoldOut}
         className={`mt-4 flex items-center justify-center gap-1.5 rounded-xl py-2.5 font-interSemiBold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7167FF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 ${
           isSoldOut
