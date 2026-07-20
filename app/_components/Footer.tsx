@@ -76,14 +76,22 @@ export default function Footer() {
             </div>
 
             <div className="mt-7 flex items-center gap-3">
-              <SocialLink href="https://instagram.com" label="Instagram">
-                <InstagramIcon className="h-4 w-4" />
-              </SocialLink>
-              <SocialLink href="https://t.me" label="Telegram">
+              <SocialLink href="https://t.me/mahdyarshirzad" label="Telegram">
                 <TelegramIcon className="h-4 w-4" />
               </SocialLink>
-              <SocialLink href="https://x.com" label="X (Twitter)">
-                <XIcon className="h-4 w-4" />
+
+              <SocialLink
+                href="https://www.linkedin.com/in/mahdyar-shirzad-a72873280/"
+                label="LinkedIn"
+              >
+                <LinkedinIcon className="h-4 w-4" />
+              </SocialLink>
+
+              <SocialLink
+                href="https://github.com/MahdiarShirzad"
+                label="GitHub"
+              >
+                <GithubIcon className="h-4 w-4" />
               </SocialLink>
             </div>
           </div>
@@ -314,47 +322,94 @@ function PlaneIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function InstagramIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <rect
-        x="3.5"
-        y="3.5"
-        width="17"
-        height="17"
-        rx="5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
 function TelegramIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path
-        d="m3 11.5 17-7-3 16-6-4.5-3 3-.5-5L21 5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg
+      className="w-6 h-6"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+        <path
+          d="M14.9932 1.58221C15.0223 1.40736 14.9567 1.23016 14.8208 1.11645C14.6848 1.00274 14.4988 0.969519 14.3318 1.02914L0.331836 6.02914C0.143209 6.0965 0.0129867 6.26994 0.000913704 6.46987C-0.0111592 6.6698 0.0972469 6.85765 0.276398 6.94722L4.2764 8.94722C4.43688 9.02746 4.62806 9.01556 4.77735 8.91603L8.09775 6.70244L6.10957 9.18766C6.02203 9.29709 5.98442 9.43824 6.00592 9.57672C6.02742 9.7152 6.10605 9.8383 6.22265 9.91603L12.2227 13.916C12.3638 14.0101 12.5431 14.0262 12.6988 13.9588C12.8545 13.8914 12.9653 13.7496 12.9932 13.5822L14.9932 1.58221Z"
+          fill="#000000"
+        ></path>{" "}
+      </g>
     </svg>
   );
 }
 
-function XIcon(props: SVGProps<SVGSVGElement>) {
+function LinkedinIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path
-        d="M4 4l16 16M20 4 4 20"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+    <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        <rect
+          width="132"
+          height="132"
+          x="30"
+          y="30"
+          stroke="#000000"
+          stroke-width="12"
+          rx="16"
+        ></rect>
+        <path
+          stroke="#000000"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="12"
+          d="M66 86v44"
+        ></path>
+        <circle cx="66" cy="64" r="8" fill="#000000"></circle>
+        <path
+          stroke="#000000"
+          stroke-linecap="round"
+          stroke-width="12"
+          d="M126 130v-26c0-9.941-8.059-18-18-18v0c-9.941 0-18 8.059-18 18v26"
+        ></path>
+      </g>
+    </svg>
+  );
+}
+
+function GithubIcon({ className = "w-8 h-8", ...props }) {
+  return (
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+        <title>github</title>{" "}
+        <g id="Layer_2" data-name="Layer 2">
+          {" "}
+          <g id="invisible_box" data-name="invisible box">
+            {" "}
+            <rect width="48" height="48" fill="none"></rect>{" "}
+            <rect width="48" height="48" fill="none"></rect>{" "}
+          </g>{" "}
+          <g id="icons_Q2" data-name="icons Q2">
+            {" "}
+            <path d="M24,1.9a21.6,21.6,0,0,0-6.8,42.2c1,.2,1.8-.9,1.8-1.8V39.4c-6,1.3-7.9-2.9-7.9-2.9a6.5,6.5,0,0,0-2.2-3.2C6.9,31.9,9,32,9,32a4.3,4.3,0,0,1,3.3,2c1.7,2.9,5.5,2.6,6.7,2.1a5.4,5.4,0,0,1,.5-2.9C12.7,32,9,28,9,22.6A10.7,10.7,0,0,1,11.9,15a6.2,6.2,0,0,1,.3-6.4,8.9,8.9,0,0,1,6.4,2.9,15.1,15.1,0,0,1,5.4-.8,17.1,17.1,0,0,1,5.4.7,9,9,0,0,1,6.4-2.8,6.5,6.5,0,0,1,.4,6.4A10.7,10.7,0,0,1,39,22.6C39,28,35.3,32,28.5,33.2a5.4,5.4,0,0,1,.5,2.9v6.2a1.8,1.8,0,0,0,1.9,1.8A21.7,21.7,0,0,0,24,1.9Z"></path>{" "}
+          </g>{" "}
+        </g>{" "}
+      </g>
     </svg>
   );
 }
