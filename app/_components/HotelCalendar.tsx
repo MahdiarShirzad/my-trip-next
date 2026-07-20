@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function HotelCalendar() {
-  const [checkIn, setCheckIn] = useState<Date>(new Date());
-  const [checkOut, setCheckOut] = useState<Date>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 3);
-    return d;
-  });
+  const [checkIn, setCheckIn] = useState<Date | null>(null);
+  const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize dates only on client
+  useEffect(() => {
+    const today = new Date();
+    const inThreeDays = new Date(today);
+    inThreeDays.setDate(inThreeDays.getDate() + 3);
+
+    setCheckIn(today);
+    setCheckOut(inThreeDays);
+    setMounted(true);
+  }, []);
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Don't render until mounted (client-side)
+  if (!mounted || !checkIn || !checkOut) {
+    return (
+      <div className="flex-1 max-lg:w-full">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 h-full animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 max-lg:w-full">

@@ -10,6 +10,7 @@ import { HotelDetail } from "../hotel-booking";
 import { confirmHotelBooking } from "../actions";
 import RoomMap from "./RoomMap";
 import HotelBookingSummary from "./HotelBookingSummary";
+import NightsCounter from "./NightsCounter";
 
 interface HotelBookingClientProps {
   hotel: HotelDetail;
@@ -28,6 +29,7 @@ export default function HotelBookingClient({
   const [selectedRoomNumber, setSelectedRoomNumber] = useState<string | null>(
     null,
   );
+  const [nights, setNights] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRoom = useMemo(
@@ -49,16 +51,17 @@ export default function HotelBookingClient({
 
     setIsSubmitting(true);
     try {
+      const checkInDate = new Date();
+      const checkOutDate = new Date(checkInDate.getTime() + nights * 86400000);
+
       const result = await confirmHotelBooking({
         hotelId: hotel._id,
         roomNumber: selectedRoom.roomNumber,
         fullName: values.fullName,
         phone: values.phone,
         address: values.address,
-        checkInDate: new Date().toISOString().split("T")[0], // TODO: get actual check-in date
-        checkOutDate: new Date(Date.now() + 86400000)
-          .toISOString()
-          .split("T")[0], // TODO: get actual check-out date
+        checkInDate: checkInDate.toISOString().split("T")[0],
+        checkOutDate: checkOutDate.toISOString().split("T")[0],
       });
 
       if (result.success) {
@@ -92,6 +95,13 @@ export default function HotelBookingClient({
           </div>
         </div>
 
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <p className="mb-4 text-xl font-extrabold text-slate-900 dark:text-white">
+            Stay Duration
+          </p>
+          <NightsCounter nights={nights} onChange={setNights} />
+        </div>
+
         <BookingPersonalInfo
           initialValues={{
             ...currentUser,
@@ -104,7 +114,11 @@ export default function HotelBookingClient({
       </div>
 
       <div className="w-2/5 max-lg:w-full">
-        <HotelBookingSummary hotel={hotel} selectedRoom={selectedRoom} />
+        <HotelBookingSummary
+          hotel={hotel}
+          selectedRoom={selectedRoom}
+          nights={nights}
+        />
       </div>
     </div>
   );

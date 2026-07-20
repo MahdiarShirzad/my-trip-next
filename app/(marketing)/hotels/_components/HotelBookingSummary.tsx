@@ -5,14 +5,15 @@ import { Room } from "@/types/hotel";
 interface HotelBookingSummaryProps {
   hotel: HotelDetail;
   selectedRoom: Room | null;
+  nights: number;
 }
 
 export default function HotelBookingSummary({
   hotel,
   selectedRoom,
+  nights,
 }: HotelBookingSummaryProps) {
   const roomPrice = selectedRoom?.price ?? 0;
-  const nights = 1; // TODO: get actual number of nights from booking params
   const subtotal = roomPrice * nights;
   const taxes = Math.round(subtotal * 0.1);
   const total = subtotal + taxes;
