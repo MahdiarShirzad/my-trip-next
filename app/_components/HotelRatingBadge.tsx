@@ -1,20 +1,16 @@
 export default function HotelRatingBadge({ rating }: { rating: number }) {
   return (
-    <div className="shrink-0 flex items-center gap-1 bg-[#ffa903] rounded-lg px-2 py-1">
+    <div className="flex items-center gap-1 flex-shrink-0 bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-lg">
       <svg
-        className="w-3.5 h-3.5"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+        className="w-3.5 h-3.5 text-amber-500"
+        fill="currentColor"
+        viewBox="0 0 20 20"
       >
-        <path
-          d="M14.65 8.93274L12.4852 4.30901C12.2923 3.89699 11.7077 3.897 11.5148 4.30902L9.35002 8.93274L4.45559 9.68243C4.02435 9.74848 3.84827 10.2758 4.15292 10.5888L7.71225 14.2461L6.87774 19.3749C6.80571 19.8176 7.27445 20.1487 7.66601 19.9317L12 17.5299L16.334 19.9317C16.7256 20.1487 17.1943 19.8176 17.1223 19.3749L16.2878 14.2461L19.8471 10.5888C20.1517 10.2758 19.9756 9.74848 19.5444 9.68243L14.65 8.93274Z"
-          stroke="#fff"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.445a1 1 0 00-1.176 0l-3.367 2.445c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.063 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.285-3.958z" />
       </svg>
-      <p className="text-xs text-white font-interBold">{rating.toFixed(1)}</p>
+      <span className="font-interSemiBold text-xs text-amber-700 dark:text-amber-400">
+        {rating}
+      </span>
     </div>
   );
 }

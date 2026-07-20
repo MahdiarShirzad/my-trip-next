@@ -14,7 +14,6 @@ const links = [
 export default function Header() {
   return (
     <header className="fixed top-0 inset-x-0 z-[1000]">
-      {/* Scroll-aware background lives in this client wrapper only */}
       <HeaderChrome>
         <div className="container max-w-[1320px] mx-auto flex items-center justify-between gap-6 px-6 lg:px-8 py-4">
           <Link href="/" className="flex items-center flex-shrink-0">

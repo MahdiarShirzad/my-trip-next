@@ -1,14 +1,14 @@
-import { sampleHotels } from "@/types/hotel";
+// import { sampleHotels } from "@/types/hotel";
 import Title from "./Title";
 import HotelCardSkeleton from "./HotelCardSkeleton";
 import HotelCard from "./HotelCard";
+import { mockHotels } from "./mockHotels";
 
 const SKELETON_COUNT = 4;
 
 export default function HotelSection() {
-  // Sample data stands in for the real fetch for now.
   const isLoading = false;
-  const data = sampleHotels;
+  const data = mockHotels;
 
   return (
     <div className="w-full shrink-0 py-20 mt-10 bg-slate-200 dark:bg-gray-700">

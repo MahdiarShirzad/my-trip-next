@@ -10,14 +10,14 @@ export default function HotelCardHeader({
   starRating: number;
 }) {
   return (
-    <div className="flex items-start justify-between px-5 pt-4 gap-2">
+    <div className="flex items-start justify-between px-5 pt-4 pb-3 gap-2">
       <div className="min-w-0">
         <p className="font-interSemiBold text-base truncate text-[#2b2860] dark:text-white">
           {name}
         </p>
         <div className="flex items-center gap-1 mt-1">
           <svg
-            className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"
+            className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +37,7 @@ export default function HotelCardHeader({
               strokeLinejoin="round"
             />
           </svg>
-          <span className="font-inter text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-inter text-xs text-slate-500 dark:text-slate-400 truncate">
             {city}
           </span>
         </div>
