@@ -5,12 +5,12 @@ import {
   HotelSearchParams,
   sortHotels,
 } from "@/lib/hotel-filters";
-import HotelFilters from "@/app/_components/HotelFilters";
-import HotelHero from "@/app/_components/HotelHero";
-import HotelResultCard from "@/app/_components/HotelResultCard";
-import HotelResultsHeader from "@/app/_components/HotelResultsHeader";
-import HotelSearch from "@/app/_components/HotelSearch";
-import HotelSort from "@/app/_components/HotelSort";
+import HotelFilters from "@/app/(marketing)/hotels/_components/HotelFilters";
+import HotelHero from "@/app/(marketing)/hotels/_components/HotelHero";
+import HotelResultCard from "@/app/(marketing)/hotels/_components/HotelResultCard";
+import HotelResultsHeader from "@/app/(marketing)/hotels/_components/HotelResultsHeader";
+import HotelSearch from "@/app/(marketing)/hotels/_components/HotelSearch";
+import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
 import { Hotel } from "@/types/hotel";
 import { mockHotels } from "@/types/mockHotels";
 

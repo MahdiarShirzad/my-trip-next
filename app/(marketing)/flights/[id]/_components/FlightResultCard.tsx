@@ -1,4 +1,4 @@
-import { Flight } from "./flight-filters";
+import { Flight } from "../../../../_components/flight-filters";
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-US", {

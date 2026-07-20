@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactElement, useState } from "react";
-import FlightSearch from "./FlightSearch";
-import HotelSearch from "./HotelSearch";
+import FlightSearch from "../(marketing)/flights/[id]/_components/FlightSearch";
+import HotelSearch from "../(marketing)/hotels/_components/HotelSearch";
 // import HotelSearch from "./HotelSearch";
 
 interface TabItem {

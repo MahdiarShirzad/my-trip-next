@@ -1,7 +1,7 @@
 import Image from "next/image";
-import SignupForm from "@/app/_components/SignupForm";
+import ForgotPasswordForm from "./ForgotPasswordForm";
 
-export default function SignupCard() {
+export default function ForgotPasswordCard() {
   return (
     <div className="mx-auto w-full max-w-[560px] rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
       {/* Light mode: dark logo on the white card background */}
@@ -22,10 +22,10 @@ export default function SignupCard() {
       />
 
       <p className="mt-4 text-center text-base text-slate-500 dark:text-slate-400">
-        Create your MyTrip account
+        Enter your email and we&apos;ll send you a link to reset your password
       </p>
 
-      <SignupForm />
+      <ForgotPasswordForm />
     </div>
   );
 }

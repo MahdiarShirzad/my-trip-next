@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import SeatMap from "@/app/_components/SeatMap";
-import FlightBookingSummary from "@/app/_components/FlightBookingSummary";
+import SeatMap from "@/app/(marketing)/flights/[id]/booking/_components/SeatMap";
+import FlightBookingSummary from "@/app/(marketing)/flights/[id]/booking/_components/FlightBookingSummary";
 import BookingPersonalInfo, {
   BookingInfoValues,
 } from "@/app/_components/BookingPersonalInfo";
-import { FlightDetail } from "../(marketing)/flights/[id]/booking/flight-booking";
-import { confirmFlightBooking } from "../(marketing)/flights/[id]/booking/actions";
+import { FlightDetail } from "../flight-booking";
+import { confirmFlightBooking } from "../actions";
 
 interface FlightBookingClientProps {
   flight: FlightDetail | null;

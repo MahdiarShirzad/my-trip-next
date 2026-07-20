@@ -1,8 +1,8 @@
 "use client";
 
-import HotelCalendar from "./HotelCalendar";
-import HotelNameSearch from "./HotelNameSearch";
-import HotelPassenger from "./HotelPassenger";
+import HotelCalendar from "../../../_components/HotelCalendar";
+import HotelNameSearch from "../../../_components/HotelNameSearch";
+import HotelPassenger from "../../../_components/HotelPassenger";
 
 function HotelSearch() {
   return (

@@ -5,12 +5,12 @@ import {
   getPriceBounds,
   sortFlights,
 } from "@/app/_components/flight-filters";
-import FlightFilters from "@/app/_components/FlightFilters";
-import FlightHero from "@/app/_components/FlightHero";
-import FlightResultCard from "@/app/_components/FlightResultCard";
-import FlightResultsHeader from "@/app/_components/FlightResultsHeader";
-import FlightSearch from "@/app/_components/FlightSearch";
-import FlightSort from "@/app/_components/FlightSort";
+import FlightFilters from "@/app/(marketing)/flights/[id]/_components/FlightFilters";
+import FlightHero from "@/app/(marketing)/flights/[id]/_components/FlightHero";
+import FlightResultCard from "@/app/(marketing)/flights/[id]/_components/FlightResultCard";
+import FlightResultsHeader from "@/app/(marketing)/flights/[id]/_components/FlightResultsHeader";
+import FlightSearch from "@/app/(marketing)/flights/[id]/_components/FlightSearch";
+import FlightSort from "@/app/(marketing)/flights/[id]/_components/FlightSort";
 import { adaptFlights } from "@/lib/flight-adapter";
 import { Flight } from "@/types/flight";
 import { mockFlights } from "@/types/mock-flights";

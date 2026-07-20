@@ -1,6 +1,6 @@
-import FlightBookingHeader from "@/app/_components/FlightBookingHeader";
+import FlightBookingHeader from "@/app/(marketing)/flights/[id]/booking/_components/FlightBookingHeader";
 import { FlightDetail } from "./flight-booking";
-import FlightBookingClient from "@/app/_components/FlightBookingClient";
+import FlightBookingClient from "@/app/(marketing)/flights/[id]/booking/_components/FlightBookingClient";
 import { mockFlights } from "@/types/mock-flights";
 import { notFound } from "next/navigation";
 

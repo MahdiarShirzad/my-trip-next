@@ -1,6 +1,6 @@
-import ContactFormCard from "@/app/_components/ContactFormCard";
-import ContactHeader from "@/app/_components/ContactHeader";
-import ContactInfo from "@/app/_components/ContactInfo";
+import ContactFormCard from "@/app/(marketing)/contact/_components/ContactFormCard";
+import ContactHeader from "@/app/(marketing)/contact/_components/ContactHeader";
+import ContactInfo from "@/app/(marketing)/contact/_components/ContactInfo";
 
 export default function ContactPage() {
   return (

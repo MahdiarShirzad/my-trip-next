@@ -1,5 +1,5 @@
-import SignupHeader from "@/app/_components/SignupHeader";
-import SignupCard from "@/app/_components/SignupCard";
+import SignupHeader from "@/app/(auth)/_components/SignupHeader";
+import SignupCard from "@/app/(auth)/_components/SignupCard";
 
 export default function SignupPage() {
   return (

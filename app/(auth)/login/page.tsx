@@ -1,5 +1,5 @@
-import LoginHeader from "@/app/_components/LoginHeader";
-import LoginCard from "@/app/_components/LoginCard";
+import LoginHeader from "@/app/(auth)/_components/LoginHeader";
+import LoginCard from "@/app/(auth)/_components/LoginCard";
 
 export default function LoginPage() {
   return (
