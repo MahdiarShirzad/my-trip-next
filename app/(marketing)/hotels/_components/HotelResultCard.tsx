@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Hotel } from "@/types/hotel";
+import { Hotel } from "../hotel";
+// import { Hotel } from "../hotel";
 
 interface HotelResultCardProps {
   hotel: Hotel;
@@ -109,7 +110,7 @@ export default function HotelResultCard({ hotel }: HotelResultCardProps) {
           </div>
 
           <a
-            href={soldOut ? undefined : `/hotels/${hotel._id}`}
+            href={soldOut ? undefined : `/hotels/${hotel._id}/booking`}
             aria-disabled={soldOut}
             className={`group/btn flex shrink-0 items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold transition-all duration-200 ${
               soldOut
