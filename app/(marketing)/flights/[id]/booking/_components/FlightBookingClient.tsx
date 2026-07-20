@@ -93,7 +93,10 @@ export default function FlightBookingClient({
         </div>
 
         <BookingPersonalInfo
-          initialValues={currentUser}
+          initialValues={{
+            ...currentUser,
+            nationalId: "",
+          }}
           disabled={!selectedSeat}
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}

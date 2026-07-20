@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { FlightDetail, Seat } from "@/types/flight-booking";
+import { FlightDetail, Seat } from "../flight-booking";
 
 interface FlightBookingSummaryProps {
   flight: FlightDetail;
@@ -29,16 +28,6 @@ export default function FlightBookingSummary({
         Booking Summary
       </p>
 
-      <div className="relative mt-4 h-40 w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
-        {/* TODO: replace with a real airline/aircraft image */}
-        <Image
-          src="/images/flight-summary-placeholder.jpg"
-          alt={flight.airline}
-          fill
-          className="object-cover"
-        />
-      </div>
-
       <h3 className="mt-4 text-lg font-extrabold text-slate-900 dark:text-white">
         {flight.origin.city} → {flight.destination.city}
       </h3>
@@ -49,8 +38,14 @@ export default function FlightBookingSummary({
         </p>
         <SummaryRow label="Airline" value={flight.airline} />
         <SummaryRow label="Flight No." value={flight.flightNumber} />
-        <SummaryRow label="Departs" value={formatDateTime(flight.departureTime)} />
-        <SummaryRow label="Arrives" value={formatDateTime(flight.arrivalTime)} />
+        <SummaryRow
+          label="Departs"
+          value={formatDateTime(flight.departureTime)}
+        />
+        <SummaryRow
+          label="Arrives"
+          value={formatDateTime(flight.arrivalTime)}
+        />
         <SummaryRow
           label="Seat"
           value={selectedSeat ? selectedSeat.seatNumber : "Not selected yet"}

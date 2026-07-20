@@ -8,6 +8,7 @@ export type BookingInfoValues = {
   email: string;
   phone: string;
   address: string;
+  nationalId: string | null | undefined;
 };
 
 interface BookingPersonalInfoProps {
@@ -22,8 +23,15 @@ const validation = yup.object().shape({
   phone: yup
     .string()
     .required("Please enter your phone number")
-    .matches(/^[0-9+\-\s]{7,}$/, "Enter a valid phone number"),
+    .matches(
+      /^09\d{9}$/,
+      "Please enter a valid Iranian phone number (09XXXXXXXXX)",
+    ),
   address: yup.string().required("Please enter your address"),
+  nationalId: yup
+    .string()
+    .required("Please enter your national ID")
+    .matches(/^\d{10}$/, "National ID must be 10 digits"),
 });
 
 export default function BookingPersonalInfo({
@@ -141,6 +149,31 @@ export default function BookingPersonalInfo({
             />
           </div>
 
+          <div className="w-[48%] max-lg:w-full">
+            <label
+              className="text-sm font-bold text-slate-700 dark:text-slate-200"
+              htmlFor="nationalId"
+            >
+              National ID
+            </label>
+            <div className="mt-2 flex items-center gap-3 rounded-2xl border-2 border-slate-200 px-4 py-3.5 transition-colors focus-within:border-[#7167FF] dark:border-slate-700">
+              <IDIcon />
+              <Field
+                className="block w-full bg-transparent px-1 text-slate-800 focus:outline-none dark:text-slate-200"
+                type="text"
+                title="nationalId"
+                name="nationalId"
+                id="nationalId"
+                placeholder="1234567890"
+              />
+            </div>
+            <ErrorMessage
+              name="nationalId"
+              component="div"
+              className="mt-1 text-sm text-red-500"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={disabled || isSubmitting}
@@ -194,7 +227,12 @@ function UserIcon() {
 
 function EmailIcon() {
   return (
-    <svg aria-hidden className="w-[22px] shrink-0" viewBox="0 0 24 24" fill="none">
+    <svg
+      aria-hidden
+      className="w-[22px] shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -236,6 +274,44 @@ function AddressIcon() {
       <path
         d="M19.799 5.165l-2.375-1.83a1.997 1.997 0 0 0-.521-.237A2.035 2.035 0 0 0 16.336 3H9.5l.801 5h6.035c.164 0 .369-.037.566-.098s.387-.145.521-.236l2.375-1.832c.135-.091.202-.212.202-.334s-.067-.243-.201-.335zM8.5 1h-1a.5.5 0 0 0-.5.5V5H3.664c-.166 0-.37.037-.567.099-.198.06-.387.143-.521.236L.201 7.165C.066 7.256 0 7.378 0 7.5c0 .121.066.242.201.335l2.375 1.832c.134.091.323.175.521.235.197.061.401.098.567.098H7v8.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-17a.5.5 0 0 0-.5-.5z"
         className="fill-slate-400 dark:fill-slate-500"
+      />
+    </svg>
+  );
+}
+
+function IDIcon() {
+  return (
+    <svg
+      aria-hidden
+      className="w-[23px] shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 5.5V18.5C21 19.6046 20.1046 20.5 19 20.5H5C3.89543 20.5 3 19.6046 3 18.5V5.5C3 4.39543 3.89543 3.5 5 3.5H19C20.1046 3.5 21 4.39543 21 5.5Z"
+        className="stroke-slate-400 dark:stroke-slate-500"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7 10C7 11.1046 7.89543 12 9 12C10.1046 12 11 11.1046 11 10C11 8.89543 10.1046 8 9 8C7.89543 8 7 8.89543 7 10Z"
+        className="stroke-slate-400 dark:stroke-slate-500"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14 9H18"
+        className="stroke-slate-400 dark:stroke-slate-500"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14 13H18"
+        className="stroke-slate-400 dark:stroke-slate-500"
       />
     </svg>
   );
