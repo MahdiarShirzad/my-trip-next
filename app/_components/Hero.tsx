@@ -57,8 +57,8 @@ export default function Hero() {
             {destinations.map((item) => (
               <Link
                 key={item.name}
-                href={`/destinations/${item.name.toLowerCase()}`}
-                className="group relative w-[160px] h-[200px] rounded-2xl overflow-hidden border border-white/20 hover:scale-105 transition duration-300"
+                href={``}
+                className="group cursor-default relative w-[160px] h-[200px] rounded-2xl overflow-hidden border border-white/20 hover:scale-105 transition duration-300"
               >
                 {/* Image */}
                 <Image

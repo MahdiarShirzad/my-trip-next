@@ -3,12 +3,24 @@ import Header from "./_components/Header";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Vazirmatn } from "next/font/google";
+import type { Metadata } from "next";
 
 const vazirmatn = Vazirmatn({
   subsets: ["latin", "arabic"],
   variable: "--font-vazirmatn",
   display: "swap",
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: "My Trip",
+    template: "%s | My Trip",
+  },
+  icons: {
+    icon: "/images/favicon.png",
+  },
+  description: "Book flights and hotels with My Trip",
+};
 
 export default function RootLayout({
   children,

@@ -13,7 +13,12 @@ import HotelSearch from "@/app/(marketing)/hotels/_components/HotelSearch";
 import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
 import { mockHotels } from "@/app/_components/mockHotels";
 import { Hotel } from "./hotel";
+import { Metadata } from "next";
 // import { mockHotels } from "@/types/mockHotels";
+
+export const metadata: Metadata = {
+  title: "Hotels",
+};
 
 async function getHotels(): Promise<Hotel[]> {
   const res = await fetch(`${process.env.API_URL}/hotels`, {

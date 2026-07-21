@@ -14,6 +14,11 @@ import FlightSort from "@/app/(marketing)/flights/[id]/_components/FlightSort";
 import { adaptFlights } from "@/lib/flight-adapter";
 import { Flight } from "@/types/flight";
 import { mockFlights } from "@/types/mock-flights";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Flights",
+};
 
 async function getFlights(): Promise<Flight[]> {
   const res = await fetch(`${process.env.API_URL}/flights`, {
