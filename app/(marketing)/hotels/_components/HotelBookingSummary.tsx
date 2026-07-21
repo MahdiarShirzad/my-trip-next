@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { HotelDetail } from "../hotel-booking";
 import { Room } from "@/types/hotel";
+import HotelImageGallery from "./HotelImageGallery";
 
 interface HotelBookingSummaryProps {
   hotel: HotelDetail;
@@ -18,21 +18,18 @@ export default function HotelBookingSummary({
   const taxes = Math.round(subtotal * 0.1);
   const total = subtotal + taxes;
 
+  const images =
+    hotel.images && hotel.images.length > 0
+      ? hotel.images
+      : ["/images/hotel-summary-placeholder.jpg"];
+
   return (
     <div className="w-full rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
       <p className="text-xl font-extrabold text-slate-900 dark:text-white">
         Booking Summary
       </p>
 
-      <div className="relative mt-4 h-40 w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
-        {/* TODO: replace with a real hotel image */}
-        <Image
-          src="/images/hotel-summary-placeholder.jpg"
-          alt={hotel.name}
-          fill
-          className="object-cover"
-        />
-      </div>
+      <HotelImageGallery images={images} alt={hotel.name} />
 
       <h3 className="mt-4 text-lg font-extrabold text-slate-900 dark:text-white">
         {hotel.name}

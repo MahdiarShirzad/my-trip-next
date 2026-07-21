@@ -38,7 +38,7 @@ export default function HotelCardFooter({
       </div>
 
       <Link
-        href={`/hotels/${hotelId}`}
+        href={`/hotels/${hotelId}/booking`}
         aria-disabled={isFullyBooked}
         tabIndex={isFullyBooked ? -1 : undefined}
         className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-interSemiBold text-sm transition-all ${
