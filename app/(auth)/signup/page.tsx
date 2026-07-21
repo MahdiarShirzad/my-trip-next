@@ -1,5 +1,10 @@
 import SignupHeader from "@/app/(auth)/_components/SignupHeader";
 import SignupCard from "@/app/(auth)/_components/SignupCard";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Signup",
+};
 
 export default function SignupPage() {
   return (

@@ -1,6 +1,11 @@
 import ContactFormCard from "@/app/(marketing)/contact/_components/ContactFormCard";
 import ContactHeader from "@/app/(marketing)/contact/_components/ContactHeader";
 import ContactInfo from "@/app/(marketing)/contact/_components/ContactInfo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact",
+};
 
 export default function ContactPage() {
   return (
