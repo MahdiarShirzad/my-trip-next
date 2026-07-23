@@ -13,7 +13,8 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const flight = await getFlightById(id);
+  const res = await getFlight(id);
+  const flight = res?.data?.flight;
 
   if (!flight) {
     return {
@@ -27,11 +28,6 @@ export async function generateMetadata({
       flight.departureTime,
     ).toLocaleString()}`,
   };
-}
-
-async function getFlightById(id: string): Promise<FlightDetail | null> {
-  const flight = mockFlights.find((f) => String(f._id) === String(id));
-  return flight ? (flight as FlightDetail) : null;
 }
 
 async function getCurrentUser() {

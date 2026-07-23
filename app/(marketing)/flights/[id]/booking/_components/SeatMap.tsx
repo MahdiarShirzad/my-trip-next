@@ -24,6 +24,33 @@ function groupByRow(seats: Seat[]) {
   return Array.from(rows.entries()).sort(([a], [b]) => Number(a) - Number(b));
 }
 
+const classStyles = {
+  first: {
+    label: "F",
+    name: "First Class",
+    base: "bg-amber-500/10 border-amber-500/40 text-amber-300",
+    hover: "hover:bg-amber-500/20 hover:border-amber-400",
+    selected: "bg-amber-200 border-amber-400 text-slate-950",
+    ring: "ring-amber-400",
+  },
+  business: {
+    label: "B",
+    name: "Business Class",
+    base: "bg-sky-500/10 border-sky-500/40 text-sky-300",
+    hover: "hover:bg-sky-500/20 hover:border-sky-400",
+    selected: "bg-sky-200 border-sky-400 text-slate-950",
+    ring: "ring-sky-400",
+  },
+  economy: {
+    label: "E",
+    name: "Economy Class",
+    base: "bg-[#7167FF]/10 border-[#7167FF]/40 text-[#a29bff]",
+    hover: "hover:bg-[#7167FF]/20 hover:border-[#7167FF]",
+    selected: "bg-[#7167FF] border-[#7167FF] text-white",
+    ring: "ring-[#7167FF]",
+  },
+};
+
 export default function SeatMap({
   seats,
   selectedSeat,
@@ -32,59 +59,94 @@ export default function SeatMap({
   const rowsData = groupByRow(seats);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* Cabin grid — rows displayed horizontally in a 2-column grid */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+    <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-col gap-3 rounded-2xl border border-white/10 dark:bg-white/[0.02] bg-gray-400/4 p-5 sm:p-6">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          <div className="w-6 shrink-0" />
+          <span className="w-10 text-center">A</span>
+          <span className="w-10 text-center">B</span>
+          <div className="w-6 shrink-0" />
+          <span className="w-10 text-center">C</span>
+          <span className="w-10 text-center">D</span>
+        </div>
+
         {rowsData.map(([row, rowSeats]) => {
-          const sortedSeats = rowSeats.sort((a, b) =>
-            parseSeat(a.seatNumber).col.localeCompare(
-              parseSeat(b.seatNumber).col,
-            ),
+          const seatByCol = new Map(
+            rowSeats.map((s) => [parseSeat(s.seatNumber).col, s]),
           );
+          const leftCols = ["A", "B"];
+          const rightCols = ["C", "D"];
 
           return (
-            <div key={row} className="flex items-center justify-center gap-1">
-              {/* Left seat (A) */}
-              {sortedSeats[0] && (
-                <SeatButton
-                  seat={sortedSeats[0]}
-                  isSelected={selectedSeat === sortedSeats[0].seatNumber}
-                  onSelect={onSelect}
-                />
-              )}
+            <div key={row} className="flex items-center justify-center gap-1.5">
+              <span className="w-6 shrink-0 text-right text-xs font-bold text-slate-600">
+                {row}
+              </span>
 
-              {/* Aisle */}
-              <div className="w-8" />
+              <div className="flex items-center gap-1.5">
+                {leftCols.map((col) => (
+                  <SeatSlot
+                    key={col}
+                    seat={seatByCol.get(col)}
+                    selectedSeat={selectedSeat}
+                    onSelect={onSelect}
+                  />
+                ))}
+              </div>
 
-              {/* Right seat (B) */}
-              {sortedSeats[1] && (
-                <SeatButton
-                  seat={sortedSeats[1]}
-                  isSelected={selectedSeat === sortedSeats[1].seatNumber}
-                  onSelect={onSelect}
-                />
-              )}
+              <div className="w-6 shrink-0" />
+
+              <div className="flex items-center gap-1.5">
+                {rightCols.map((col) => (
+                  <SeatSlot
+                    key={col}
+                    seat={seatByCol.get(col)}
+                    selectedSeat={selectedSeat}
+                    onSelect={onSelect}
+                  />
+                ))}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-5 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:text-slate-400">
+      <div className="flex w-full max-w-lg flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-white/10 pt-6 text-xs font-medium text-slate-400">
+        {Object.entries(classStyles).map(([key, style]) => (
+          <span key={key} className="flex items-center gap-2">
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-bold ${style.base}`}
+            >
+              {style.label}
+            </span>
+            <span>{style.name}</span>
+          </span>
+        ))}
         <span className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded-md bg-white border-2 border-slate-300 dark:border-slate-600" />
-          Available
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded-md bg-[#7167FF]" />
-          Selected
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded-md bg-slate-200 dark:bg-slate-700" />
+          <span className="h-6 w-6 rounded-md border border-white/5 bg-white/5" />
           Booked
         </span>
       </div>
     </div>
+  );
+}
+
+interface SeatSlotProps {
+  seat: Seat | undefined;
+  selectedSeat: string | null;
+  onSelect: (seatNumber: string) => void;
+}
+
+function SeatSlot({ seat, selectedSeat, onSelect }: SeatSlotProps) {
+  if (!seat) {
+    return <div className="h-10 w-10 shrink-0" aria-hidden="true" />;
+  }
+  return (
+    <SeatButton
+      seat={seat}
+      isSelected={selectedSeat === seat.seatNumber}
+      onSelect={onSelect}
+    />
   );
 }
 
@@ -95,23 +157,37 @@ interface SeatButtonProps {
 }
 
 function SeatButton({ seat, isSelected, onSelect }: SeatButtonProps) {
+  const style =
+    classStyles[seat.class as keyof typeof classStyles] || classStyles.economy;
+
   return (
     <button
       type="button"
       disabled={seat.isBooked}
       onClick={() => onSelect(seat.seatNumber)}
-      title={`Seat ${seat.seatNumber} — $${seat.price}`}
+      title={`Seat ${seat.seatNumber} — ${style.name} — $${seat.price}`}
       aria-pressed={isSelected}
-      aria-label={`Seat ${seat.seatNumber}, ${seat.isBooked ? "unavailable" : `$${seat.price}`}`}
-      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-[13px] font-bold transition-all duration-150 border-2 ${
+      aria-label={`Seat ${seat.seatNumber}, ${style.name}, ${seat.isBooked ? "unavailable" : `$${seat.price}`}`}
+      className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold transition-colors duration-150 ${
         seat.isBooked
-          ? "cursor-not-allowed bg-slate-100 border-slate-300 text-slate-400 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-600"
+          ? "cursor-not-allowed border-white/5 bg-white/[0.03] text-slate-700"
           : isSelected
-            ? "bg-[#7167FF] border-[#7167FF] text-white shadow-md shadow-[#7167FF]/30"
-            : "bg-white border-slate-300 text-slate-700 hover:border-[#7167FF] hover:text-[#7167FF] dark:bg-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:border-[#7167FF]"
+            ? `${style.selected} ring-2 ring-offset-2 ring-offset-slate-950 ${style.ring}`
+            : `${style.base} ${style.hover}`
       }`}
     >
       {seat.seatNumber}
+      {!seat.isBooked && (
+        <span
+          className={`absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold leading-none ${
+            isSelected
+              ? "bg-slate-950 text-white"
+              : "bg-slate-800 text-slate-300"
+          }`}
+        >
+          {style.label}
+        </span>
+      )}
     </button>
   );
 }
