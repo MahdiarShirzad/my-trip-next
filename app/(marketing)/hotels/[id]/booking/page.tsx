@@ -3,6 +3,27 @@ import { HotelDetail } from "../../hotel-booking";
 import HotelBookingHeader from "../../_components/HotelBookingHeader";
 import HotelBookingClient from "../../_components/HotelBookingClient";
 import { mockHotels } from "@/app/_components/mockHotels";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const hotel = await getHotelById(id);
+
+  if (!hotel) {
+    return {
+      title: "Hotel Not Found",
+    };
+  }
+
+  return {
+    title: `Booking ${hotel.name} | ${hotel.location.city}`,
+    description: `Book ${hotel.name} in ${hotel.location.city}. ${hotel.starRating}-star hotel with prices starting from ${hotel.minPrice}.`,
+  };
+}
 
 // TODO: replace with a real fetch against your hotels API
 async function getHotelById(id: string): Promise<HotelDetail | null> {
