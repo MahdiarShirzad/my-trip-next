@@ -15,19 +15,20 @@ import { adaptFlights } from "@/lib/flight-adapter";
 import { Flight } from "@/types/flight";
 import { mockFlights } from "@/types/mock-flights";
 import { Metadata } from "next";
+import { getAllFlights } from "@/lib/services/apiFlights";
 
 export const metadata: Metadata = {
   title: "Flights",
 };
 
-async function getFlights(): Promise<Flight[]> {
-  const res = await fetch(`${process.env.API_URL}/flights`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to load flights");
-  const json = await res.json();
-  return json.data as Flight[];
-}
+// async function getFlights(): Promise<Flight[]> {
+//   const res = await fetch(`${process.env.API_URL}/flights`, {
+//     next: { revalidate: 60 },
+//   });
+//   if (!res.ok) throw new Error("Failed to load flights");
+//   const json = await res.json();
+//   return json.data as Flight[];
+// }
 
 interface FlightsPageProps {
   searchParams: Promise<FlightSearchParams>;
@@ -35,7 +36,11 @@ interface FlightsPageProps {
 
 export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const params = await searchParams;
-  const allFlights = adaptFlights(mockFlights);
+
+  const res = await getAllFlights();
+  const data = res?.data?.flights ?? [];
+
+  const allFlights = adaptFlights(data);
 
   const airlineOptions = getAirlineOptions(allFlights);
   const priceBounds = getPriceBounds(allFlights);

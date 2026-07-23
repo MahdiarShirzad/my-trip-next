@@ -3,12 +3,14 @@ import HotelCardSkeleton from "./HotelCardSkeleton";
 import HotelCard from "./HotelCard";
 import { mockHotels } from "./mockHotels";
 import Link from "next/link";
+import { getLatestHotels } from "@/lib/services/apiHotels";
 
 const SKELETON_COUNT = 4;
 
-export default function HotelSection() {
+export default async function HotelSection() {
   const isLoading = false;
-  const data = mockHotels;
+  const response = await getLatestHotels();
+  const data = response?.data?.hotels ?? [];
 
   return (
     <div className="w-full shrink-0 bg-slate-100 py-20 dark:bg-slate-900">

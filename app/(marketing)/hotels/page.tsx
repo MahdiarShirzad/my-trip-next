@@ -14,6 +14,8 @@ import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
 import { mockHotels } from "@/app/_components/mockHotels";
 import { Hotel } from "./hotel";
 import { Metadata } from "next";
+import { getAllHotels } from "@/lib/services/apiHotels";
+import { log } from "console";
 // import { mockHotels } from "@/types/mockHotels";
 
 export const metadata: Metadata = {
@@ -36,7 +38,10 @@ interface HotelsPageProps {
 
 export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const params = await searchParams;
-  const allHotels = mockHotels as Hotel[];
+  const res = await getAllHotels();
+  const allHotels = res?.data?.hotels ?? [];
+
+  console.log(allHotels);
 
   const propertyTypeOptions = getPropertyTypeOptions(allHotels);
   const priceBounds = getPriceBounds(allHotels);

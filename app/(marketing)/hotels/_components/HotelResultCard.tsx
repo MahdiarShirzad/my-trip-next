@@ -75,7 +75,7 @@ export default function HotelResultCard({ hotel }: HotelResultCardProps) {
           </div>
 
           <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#7167FF]/10 px-2.5 py-1 text-xs font-bold text-[#7167FF]">
-            {hotel.guestRating.toFixed(1)}
+            {/* {hotel.guestRating.toFixed(1)} */}
             <span className="font-normal text-[#7167FF]/70">
               ({hotel.reviewCount} reviews)
             </span>

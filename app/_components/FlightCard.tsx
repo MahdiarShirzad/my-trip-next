@@ -125,7 +125,7 @@ export default function FlightCard({ flight }: { flight: Flight }) {
         <div>
           <p className="font-inter text-[11px] text-slate-400">From</p>
           <p className="font-interBold text-lg text-[#f96768]">
-            ${startingPrice}
+            {startingPrice !== null ? `$${startingPrice}` : "—"}
           </p>
         </div>
         <p

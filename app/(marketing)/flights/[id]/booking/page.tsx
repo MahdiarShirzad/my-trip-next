@@ -5,6 +5,7 @@ import { mockFlights } from "@/types/mock-flights";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
+import { getFlight } from "@/lib/services/apiFlights";
 
 export async function generateMetadata({
   params,
@@ -51,7 +52,9 @@ export default async function FlightBookingPage({
 }: FlightBookingPageProps) {
   const { id } = await params;
 
-  const flight = await getFlightById(id);
+  const res = await getFlight(id);
+
+  const flight = res?.data?.flight;
 
   if (!flight) {
     notFound();

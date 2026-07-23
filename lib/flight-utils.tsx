@@ -30,7 +30,9 @@ export function getFlightDuration(departureTime: string, arrivalTime: string) {
 export function getStartingPrice(
   flight: Flight,
   seatClass: SeatClass = "economy",
-) {
+): number | null {
+  if (!flight.seats || flight.seats.length === 0) return null;
+
   const inClass = flight.seats.filter((seat) => seat.class === seatClass);
   const pool = inClass.length > 0 ? inClass : flight.seats;
   return Math.min(...pool.map((seat) => seat.price));
