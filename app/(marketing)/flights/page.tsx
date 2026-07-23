@@ -21,15 +21,6 @@ export const metadata: Metadata = {
   title: "Flights",
 };
 
-// async function getFlights(): Promise<Flight[]> {
-//   const res = await fetch(`${process.env.API_URL}/flights`, {
-//     next: { revalidate: 60 },
-//   });
-//   if (!res.ok) throw new Error("Failed to load flights");
-//   const json = await res.json();
-//   return json.data as Flight[];
-// }
-
 interface FlightsPageProps {
   searchParams: Promise<FlightSearchParams>;
 }
