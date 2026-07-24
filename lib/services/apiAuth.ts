@@ -9,7 +9,10 @@ export interface LoginPayload {
 export interface RegisterPayload {
   email: string;
   password: string;
+  passwordConfirm: string;
   name?: string;
+  phone?: string;
+  nationalId?: string;
 }
 
 export interface User {
@@ -36,7 +39,7 @@ export async function login(data: LoginPayload) {
 }
 
 export async function signup(data: RegisterPayload) {
-  const res = await apiRequest<AuthResponse>("/auth/register", {
+  const res = await apiRequest<AuthResponse>("/auth/signup", {
     method: "POST",
     body: data,
   });

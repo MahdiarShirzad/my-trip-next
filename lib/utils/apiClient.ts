@@ -20,7 +20,6 @@ export class ApiError extends Error {
   }
 }
 
-// 👇 جلوگیری از چند بار فراخوانی همزمان /auth/refresh
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessTokenOnce(): Promise<string | null> {

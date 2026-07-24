@@ -4,6 +4,10 @@ import * as yup from "yup";
 import Link from "next/link";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/_components/AuthProvider";
+import { ApiError } from "@/lib/utils/apiClient";
+import { signup } from "@/lib/services/apiAuth";
 
 type Values = {
   fullName: string;
@@ -43,15 +47,36 @@ export default function SignupForm() {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
   const [confirmPasswordIsVisible, setConfirmPasswordIsVisible] =
     useState(false);
-  // TODO: wire this up to your actual signup mutation / server action.
-  const isPending = false;
 
-  function handleSubmit(values: Values) {
-    const { fullName, email, password, confirmPassword } = values;
-    if (!fullName || !email || !password || !confirmPassword) return;
+  const router = useRouter();
+  const { setUser } = useAuth();
+  const [isPending, setIsPending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-    // TODO: call your signup logic here, e.g. signup({ fullName, email, password })
-    console.log("signup submit", { fullName, email, password });
+  async function handleSubmit(values: Values) {
+    setFormError(null);
+    setIsPending(true);
+    try {
+      const res = await signup({
+        name: values.fullName,
+        email: values.email,
+        password: values.password,
+        passwordConfirm: values.confirmPassword,
+      });
+
+      if (res?.data?.user) {
+        setUser(res.data.user);
+        router.push("/");
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setFormError(err.message);
+      } else {
+        setFormError("خطای غیرمنتظره‌ای رخ داد");
+      }
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -174,6 +199,12 @@ export default function SignupForm() {
           component="div"
           className="mt-1 text-sm text-red-500"
         />
+
+        {formError && (
+          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400">
+            {formError}
+          </p>
+        )}
 
         <button
           type="submit"
