@@ -15,18 +15,33 @@ export interface RegisterPayload {
   nationalId?: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
-
 export interface AuthResponse {
   status: string;
   accessToken?: string;
   data: {
     user: User;
   };
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  nationalId?: string;
+  role: "user" | "admin";
+}
+
+export interface MeResponse {
+  status: string;
+  data: {
+    user: User;
+  };
+}
+
+export interface UpdateProfilePayload {
+  name?: string;
+  phone?: string;
 }
 
 export async function login(data: LoginPayload) {
@@ -54,9 +69,47 @@ export async function logout() {
 }
 
 export async function getMe() {
-  return apiRequest<User>("/auth/me");
+  const res = await apiRequest<MeResponse>("/auth/me");
+  return res?.data?.user ?? null;
 }
 
 export async function refreshToken() {
   return apiRequest<AuthResponse>("/auth/refresh", { method: "POST" });
+}
+
+export async function setNationalId(nationalId: string) {
+  return apiRequest<{ status: string; data: { user: User } }>(
+    "/auth/national-id",
+    {
+      method: "PATCH",
+      body: { nationalId },
+    },
+  );
+}
+
+export async function updateProfile(data: UpdateProfilePayload) {
+  return apiRequest<{ status: string; data: { user: User } }>(
+    "/auth/update-me",
+    {
+      method: "PATCH",
+      body: data,
+    },
+  );
+}
+
+export interface UpdatePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function updatePassword(data: UpdatePasswordPayload) {
+  const res = await apiRequest<{ status: string; accessToken?: string }>(
+    "/auth/update-password",
+    {
+      method: "PATCH",
+      body: data,
+    },
+  );
+  if (res?.accessToken) setAccessToken(res.accessToken);
+  return res;
 }

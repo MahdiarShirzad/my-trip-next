@@ -1,43 +1,43 @@
-// --- SWAP POINT ---------------------------------------------------------
-// Replace with a real session-based fetch, e.g.:
+"use client";
 
 import AccountHeader from "../_components/AccountHeader";
 import PasswordCard from "../_components/PasswordCard";
 import ProfileForm from "../_components/ProfileForm";
 import VerifiedIdentityCard from "../_components/VerifiedIdentityCard";
+import { useAuth } from "@/app/_components/AuthProvider";
 
-// const user = await getCurrentUser(); // reads JWT from cookies, hits your API
-interface MockUser {
-  name: string;
-  email: string;
-  phone: string;
-  nationalId: string;
-  role: "user" | "admin";
-}
+export default function AccountPage() {
+  const { user, isLoading } = useAuth();
 
-async function getCurrentUser(): Promise<MockUser> {
-  return {
-    name: "Mahdyar Shirzad",
-    email: "mahdyar@example.com",
-    phone: "09121234567",
-    nationalId: "0123456789",
-    role: "user",
-  };
-}
-// -------------------------------------------------------------------------
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-[#7167FF]" />
+      </div>
+    );
+  }
 
-export default async function AccountPage() {
-  const user = await getCurrentUser();
+  if (!user) return null;
 
   return (
     <div>
-      <AccountHeader name={user.name} email={user.email} role={user.role} />
+      <AccountHeader
+        name={user.name ?? ""}
+        email={user.email}
+        role={user.role}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-6 lg:col-span-2">
-          <ProfileForm initialName={user.name} initialPhone={user.phone} />
+          <ProfileForm
+            initialName={user.name ?? ""}
+            initialPhone={user.phone ?? ""}
+          />
         </div>
-        <VerifiedIdentityCard email={user.email} nationalId={user.nationalId} />
+        <VerifiedIdentityCard
+          email={user.email}
+          nationalId={user.nationalId ?? ""}
+        />
         <PasswordCard />
       </div>
     </div>

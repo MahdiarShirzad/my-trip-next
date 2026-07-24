@@ -1,10 +1,9 @@
 "use client";
-// app/user-panel/account/_components/ProfileForm.tsx
-// Client island: local edit-mode toggle + controlled inputs. Submission
-// is stubbed with a mock async delay — wire to your real
-// PATCH /api/users/me endpoint later (search for SWAP POINT below).
 
 import { useState } from "react";
+import { useAuth } from "@/app/_components/AuthProvider";
+import { updateProfile } from "@/lib/services/apiAuth";
+import { ApiError } from "@/lib/utils/apiClient";
 
 interface ProfileFormProps {
   initialName: string;
@@ -15,29 +14,29 @@ export default function ProfileForm({
   initialName,
   initialPhone,
 }: ProfileFormProps) {
+  const { setUser } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSave() {
     setStatus("saving");
+    setErrorMsg(null);
     try {
-      // --- SWAP POINT -------------------------------------------------
-      // await fetch("/api/users/me", {
-      //   method: "PATCH",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ name, phone }),
-      // });
-      await new Promise((resolve) => setTimeout(resolve, 600)); // mock delay
-      // ------------------------------------------------------------------
+      const res = await updateProfile({ name, phone });
+      if (res?.data?.user) setUser(res.data.user);
       setStatus("saved");
       setEditing(false);
       setTimeout(() => setStatus("idle"), 2000);
-    } catch {
+    } catch (err) {
       setStatus("error");
+      setErrorMsg(
+        err instanceof ApiError ? err.message : "خطای غیرمنتظره‌ای رخ داد",
+      );
     }
   }
 
@@ -46,6 +45,7 @@ export default function ProfileForm({
     setPhone(initialPhone);
     setEditing(false);
     setStatus("idle");
+    setErrorMsg(null);
   }
 
   return (
@@ -74,7 +74,7 @@ export default function ProfileForm({
             value={name}
             disabled={!editing}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-70 focus:border-[#F5A623] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-70 focus:border-[#7167FF] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
           />
         </div>
 
@@ -88,7 +88,7 @@ export default function ProfileForm({
             disabled={!editing}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="09xxxxxxxxx"
-            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-70 focus:border-[#F5A623] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-70 focus:border-[#7167FF] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
           />
         </div>
 
@@ -97,7 +97,7 @@ export default function ProfileForm({
             <button
               onClick={handleSave}
               disabled={status === "saving"}
-              className="rounded-full bg-[#7167FF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#ffb945] disabled:opacity-60"
+              className="rounded-full bg-[#7167FF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5b51e6] disabled:opacity-60"
             >
               {status === "saving" ? "Saving..." : "Save Changes"}
             </button>
@@ -118,7 +118,7 @@ export default function ProfileForm({
         )}
         {status === "error" && (
           <p className="text-sm font-medium text-red-500">
-            Something went wrong. Please try again.
+            {errorMsg ?? "Something went wrong. Please try again."}
           </p>
         )}
       </div>

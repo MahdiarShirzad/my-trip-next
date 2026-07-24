@@ -1,10 +1,8 @@
 "use client";
-// app/user-panel/account/_components/PasswordCard.tsx
-// Client island: password change form with basic client-side match
-// validation. Wire the submit handler to your real change-password
-// endpoint later.
 
 import { useState } from "react";
+import { updatePassword } from "@/lib/services/apiAuth";
+import { ApiError } from "@/lib/utils/apiClient";
 
 export default function PasswordCard() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -30,21 +28,19 @@ export default function PasswordCard() {
 
     setStatus("saving");
     try {
-      // --- SWAP POINT -------------------------------------------------
-      // await fetch("/api/users/change-password", {
-      //   method: "PATCH",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ currentPassword, newPassword }),
-      // });
-      await new Promise((resolve) => setTimeout(resolve, 600)); // mock delay
-      // ------------------------------------------------------------------
+      await updatePassword({ currentPassword, newPassword });
       setStatus("saved");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setTimeout(() => setStatus("idle"), 2000);
-    } catch {
+    } catch (err) {
       setStatus("error");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     }
   }
 
@@ -64,7 +60,7 @@ export default function PasswordCard() {
             required
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#F5A623] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#7167FF] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
           />
         </div>
 
@@ -79,7 +75,7 @@ export default function PasswordCard() {
               minLength={6}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#F5A623] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#7167FF] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
             />
           </div>
           <div>
@@ -92,7 +88,7 @@ export default function PasswordCard() {
               minLength={6}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#F5A623] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-[#7167FF] dark:border-slate-700 dark:bg-[#0B1120] dark:text-white"
             />
           </div>
         </div>
@@ -107,7 +103,7 @@ export default function PasswordCard() {
         <button
           type="submit"
           disabled={status === "saving"}
-          className="rounded-full bg-[#7167FF] px-5 py-2 text-sm font-semibold  text-white transition-colors hover:bg-[#ffb945] disabled:opacity-60"
+          className="rounded-full bg-[#7167FF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5b51e6] disabled:opacity-60"
         >
           {status === "saving" ? "Updating..." : "Update Password"}
         </button>

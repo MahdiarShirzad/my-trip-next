@@ -1,4 +1,8 @@
-import { getMockBookings } from "@/lib/mock-bookings";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { getMyBookings, type Booking } from "@/lib/services/apiBookings";
 import {
   filterBookingsByTab,
   sortBookingsByRecency,
@@ -6,15 +10,35 @@ import {
 import BookingTabs from "../_components/BookingTabs";
 import BookingCard from "../_components/BookingCard";
 
-interface BookingsPageProps {
-  searchParams: Promise<{ tab?: string }>;
-}
+export default function BookingsPage() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") ?? "all";
 
-export default async function BookingsPage({
-  searchParams,
-}: BookingsPageProps) {
-  const { tab = "all" } = await searchParams;
-  const allBookings = await getMockBookings();
+  const [allBookings, setAllBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getMyBookings();
+        if (!ignore) setAllBookings(data);
+      } catch {
+        if (!ignore) setError("دریافت رزروها با خطا مواجه شد");
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const filtered = filterBookingsByTab(allBookings, tab);
   const bookings = sortBookingsByRecency(filtered);
@@ -28,7 +52,13 @@ export default async function BookingsPage({
         <BookingTabs />
       </div>
 
-      {bookings.length > 0 ? (
+      {isLoading ? (
+        <div className="flex h-48 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-[#7167FF]" />
+        </div>
+      ) : error ? (
+        <p className="text-center text-sm text-red-500">{error}</p>
+      ) : bookings.length > 0 ? (
         <div className="flex flex-col gap-4">
           {bookings.map((booking) => (
             <BookingCard key={booking._id} booking={booking} />
