@@ -43,9 +43,6 @@ async function HotelResultsList({
 }) {
   const params = await searchParams;
 
-  // فقط پارامترهایی که بک‌اند می‌فهمه (location.city, minPrice/maxPrice,
-  // roomType, capacity, ...) پاس داده میشه. star/minGuestRating/amenity/sort
-  // سمت فرانت با filterHotels اعمال میشن.
   const backendQuery = buildBackendHotelQuery(
     params as Record<string, string | string[] | undefined>,
   );
@@ -89,6 +86,8 @@ async function HotelResultsList({
 
 export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const res = await getAllHotels();
+  const hotelsCount = res?.results;
+
   const allHotels = res?.data?.hotels ?? [];
 
   const propertyTypeOptions = getPropertyTypeOptions(allHotels);
@@ -115,7 +114,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
           </aside>
 
           <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <HotelResultsHeader count={0} sortSlot={<HotelSort />} />
+            <HotelResultsHeader count={hotelsCount} sortSlot={<HotelSort />} />
 
             <Suspense fallback={<ResultsListSkeleton />}>
               <HotelResultsList searchParams={searchParams} />

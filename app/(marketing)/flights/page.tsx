@@ -92,6 +92,8 @@ async function FlightResultsList({
 export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const res = await getAllFlights();
   const data = res?.data?.flights ?? [];
+  const flightsCount = res?.results;
+
   const allFlights = adaptFlights(data);
 
   const airlineOptions = getAirlineOptions(allFlights);
@@ -118,7 +120,10 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
           </aside>
 
           <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <FlightResultsHeader count={0} sortSlot={<FlightSort />} />
+            <FlightResultsHeader
+              count={flightsCount}
+              sortSlot={<FlightSort />}
+            />
 
             <Suspense fallback={<ResultsListSkeleton />}>
               <FlightResultsList searchParams={searchParams} />

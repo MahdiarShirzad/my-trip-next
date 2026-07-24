@@ -4,6 +4,11 @@ import * as yup from "yup";
 import Link from "next/link";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/_components/AuthProvider";
+import { ApiError } from "@/lib/utils/apiClient";
+import { login } from "@/lib/services/apiAuth";
+import { getAccessToken } from "@/lib/utils/token";
 
 type Values = {
   email: string;
@@ -32,16 +37,38 @@ const validation = yup.object().shape({
 
 export default function LoginForm() {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
-  // TODO: wire this up to your actual login mutation / server action.
-  const isPending = false;
 
-  function handleSubmit(values: Values) {
-    const { email, password } = values;
-    if (!email || !password) return;
+  const router = useRouter();
+  const { setUser } = useAuth();
+  const [isPending, setIsPending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-    // TODO: call your login logic here, e.g. login({ email, password })
-    console.log("login submit", { email, password });
+  async function handleSubmit(values: Values) {
+    console.log("SUBMIT FIRED", values);
+    setFormError(null);
+    setIsPending(true);
+    try {
+      const res = await login(values);
+      console.log("LOGIN RESPONSE", res);
+      if (res?.data?.user) {
+        setUser(res.data.user);
+        router.push("/");
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setFormError(err.message);
+      } else {
+        setFormError("خطای غیرمنتظره‌ای رخ داد");
+      }
+    } finally {
+      setIsPending(false);
+    }
   }
+
+  console.log("token in memory:", getAccessToken());
+  const { user, isLoading } = useAuth();
+
+  console.log(user);
 
   return (
     <Formik
@@ -94,9 +121,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => setPasswordIsVisible((v) => !v)}
-            aria-label={
-              passwordIsVisible ? "Hide password" : "Show password"
-            }
+            aria-label={passwordIsVisible ? "Hide password" : "Show password"}
             className="absolute right-3 cursor-pointer text-slate-400 transition-colors hover:text-[#7167FF]"
           >
             {passwordIsVisible ? <EyeOffIcon /> : <EyeIcon />}

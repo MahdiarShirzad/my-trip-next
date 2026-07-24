@@ -1,3 +1,5 @@
+import { getAccessToken, setAccessToken, clearAccessToken } from "./token";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface ApiRequestOptions extends Omit<RequestInit, "body"> {
@@ -18,12 +20,44 @@ export class ApiError extends Error {
   }
 }
 
+// 👇 جلوگیری از چند بار فراخوانی همزمان /auth/refresh
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessTokenOnce(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      setAccessToken(data.accessToken);
+      return data.accessToken as string;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
 export async function apiRequest<T = unknown>(
   path: string,
   { method = "GET", body, isFormData = false, ...rest }: ApiRequestOptions = {},
 ): Promise<T | null> {
   const headers: Record<string, string> = {};
+
   if (!isFormData) headers["Content-Type"] = "application/json";
+
+  const token = getAccessToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let finalBody: BodyInit | undefined;
   if (isFormData) {
@@ -32,7 +66,7 @@ export async function apiRequest<T = unknown>(
     finalBody = typeof body === "string" ? body : JSON.stringify(body);
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  let res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
     body: finalBody,
@@ -40,36 +74,34 @@ export async function apiRequest<T = unknown>(
     ...rest,
   });
 
-  if (res.status === 204) return null;
+  if (res.status === 401 && path !== "/auth/refresh") {
+    const newToken = await refreshAccessTokenOnce();
 
-  let text: string;
-  try {
-    text = await res.text();
-  } catch (err) {
-    console.error("❌ Failed to read response body:", err);
-    throw new Error("Failed to read server response");
-  }
-
-  let data: unknown = null;
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      console.error("❌ Invalid JSON from server:", text);
-      throw new Error(
-        `Server returned invalid JSON: ${text.substring(0, 200)}`,
-      );
+    if (newToken) {
+      res = await fetch(`${BASE_URL}${path}`, {
+        method,
+        headers: { ...headers, Authorization: `Bearer ${newToken}` },
+        body: finalBody,
+        credentials: "include",
+        ...rest,
+      });
+    } else {
+      clearAccessToken();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      throw new ApiError("Session expired", 401, null);
     }
   }
+
+  if (res.status === 204) return null;
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
 
   if (!res.ok) {
     const errorMsg =
       (data as { message?: string })?.message || `Server error: ${res.status}`;
-    console.error("❌ API Error Response:", {
-      status: res.status,
-      message: errorMsg,
-      data,
-    });
     throw new ApiError(errorMsg, res.status, data);
   }
 

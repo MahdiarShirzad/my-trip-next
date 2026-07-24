@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Vazirmatn } from "next/font/google";
 import type { Metadata } from "next";
+import { AuthProvider } from "./_components/AuthProvider";
 
 const vazirmatn = Vazirmatn({
   subsets: ["latin", "arabic"],
@@ -35,9 +36,11 @@ export default function RootLayout({
     >
       <body className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-blue-200 dark:selection:bg-sky-800 selection:text-slate-900 dark:selection:text-slate-100">
         <Providers>
-          <Header />
-          {children}
-          <Footer />
+          <AuthProvider>
+            <Header />
+            {children}
+            <Footer />
+          </AuthProvider>
         </Providers>
       </body>
     </html>
