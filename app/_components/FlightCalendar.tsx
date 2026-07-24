@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useFlightSearch } from "./FlightSearchContext";
 
 export default function FlightCalendar({ type }: { type: string }) {
-  const [journeyDate, setJourneyDate] = useState<Date>(new Date());
-  const [returnDate, setReturnDate] = useState<Date>(() => {
-    const d = new Date();
-    d.setMonth(d.getMonth() + 1);
-    return d;
-  });
+  const { journeyDate, setJourneyDate, returnDate, setReturnDate } =
+    useFlightSearch();
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

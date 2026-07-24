@@ -3,7 +3,6 @@
 import { ReactElement, useState } from "react";
 import FlightSearch from "@/app/(marketing)/flights/_components/FlightSearch";
 import HotelSearch from "../(marketing)/hotels/_components/HotelSearch";
-// import HotelSearch from "./HotelSearch";
 
 interface TabItem {
   id: number;
@@ -88,12 +87,6 @@ function ProductBox() {
         <div className="animate-fadeIn">
           {activeTab === 1 && <FlightSearch />}
           {activeTab === 2 && <HotelSearch />}
-        </div>
-
-        <div className="flex items-center justify-center mt-6">
-          <button className="bg-[#7167FF] hover:bg-[#5b51e6] text-white font-bold px-10 py-3.5 rounded-full shadow-lg shadow-[#7167FF]/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm tracking-wide">
-            Search Available Options
-          </button>
         </div>
       </div>
     </div>

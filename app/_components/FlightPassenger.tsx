@@ -1,16 +1,26 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFlightSearch, CabinClass } from "./FlightSearchContext";
+
+const CABIN_CLASSES: { value: CabinClass; label: string }[] = [
+  { value: "economy", label: "Economy" },
+  { value: "business", label: "Business" },
+  { value: "first", label: "First Class" },
+];
 
 export default function FlightPassenger() {
   const [tabIsOpen, setTabIsOpen] = useState<boolean>(false);
-  const [classType, setClassType] = useState<string>("Economy");
-
-  const [adults, setAdults] = useState<number>(1);
-  const [children, setChildren] = useState<number>(0);
-  const [infants, setInfants] = useState<number>(0);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const {
+    adults,
+    children,
+    infants,
+    classType,
+    setClassType,
+    changePassengerCount,
+  } = useFlightSearch();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -25,15 +35,6 @@ export default function FlightPassenger() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function handlePassengerChange(
-    category: "adults" | "children" | "infants",
-    value: number,
-  ) {
-    if (category === "adults") setAdults((n) => Math.max(n + value, 1));
-    if (category === "children") setChildren((n) => Math.max(n + value, 0));
-    if (category === "infants") setInfants((n) => Math.max(n + value, 0));
-  }
-
   const totalPassengers = adults + children + infants;
 
   const counters: {
@@ -46,6 +47,9 @@ export default function FlightPassenger() {
     { key: "children", label: "Children", hint: "2–12 years", value: children },
     { key: "infants", label: "Infant", hint: "Below 2 years", value: infants },
   ];
+
+  const activeClassLabel =
+    CABIN_CLASSES.find((c) => c.value === classType)?.label ?? "Economy";
 
   return (
     <div
@@ -81,7 +85,7 @@ export default function FlightPassenger() {
           {totalPassengers} Passenger{totalPassengers > 1 ? "s" : ""}
         </p>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-          {classType}
+          {activeClassLabel}
         </p>
       </button>
 
@@ -102,7 +106,7 @@ export default function FlightPassenger() {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => handlePassengerChange(key, -1)}
+                    onClick={() => changePassengerCount(key, -1)}
                     className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     disabled={key === "adults" ? value <= 1 : value <= 0}
                   >
@@ -113,7 +117,7 @@ export default function FlightPassenger() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => handlePassengerChange(key, 1)}
+                    onClick={() => changePassengerCount(key, 1)}
                     className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] transition-colors"
                   >
                     +
@@ -126,17 +130,17 @@ export default function FlightPassenger() {
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
             <p className="font-semibold text-sm mb-2.5">Cabin Class</p>
             <div className="flex flex-col gap-2">
-              {["Economy", "Business", "First Class"].map((type) => (
+              {CABIN_CLASSES.map(({ value, label }) => (
                 <label
-                  key={type}
-                  htmlFor={type.toLowerCase().replace(" ", "")}
+                  key={value}
+                  htmlFor={value}
                   className="flex items-center gap-2.5 cursor-pointer text-sm"
                 >
                   <span
                     className={`relative w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors
-                      ${classType === type ? "border-[#7167FF]" : "border-slate-300 dark:border-slate-600"}`}
+                      ${classType === value ? "border-[#7167FF]" : "border-slate-300 dark:border-slate-600"}`}
                   >
-                    {classType === type && (
+                    {classType === value && (
                       <span className="w-2 h-2 rounded-full bg-[#7167FF]" />
                     )}
                   </span>
@@ -144,12 +148,12 @@ export default function FlightPassenger() {
                     className="sr-only"
                     type="radio"
                     name="class"
-                    id={type.toLowerCase().replace(" ", "")}
-                    value={type}
-                    checked={classType === type}
-                    onChange={(e) => setClassType(e.target.value)}
+                    id={value}
+                    value={value}
+                    checked={classType === value}
+                    onChange={() => setClassType(value)}
                   />
-                  {type}
+                  {label}
                 </label>
               ))}
             </div>

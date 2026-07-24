@@ -1,15 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import FlightCities from "../../../_components/FlightCities";
-import FlightCalendar from "../../../_components/FlightCalendar";
-import FlightPassenger from "../../../_components/FlightPassenger";
+import { useRouter } from "next/navigation";
+import { buildFlightSearchParams } from "@/lib/services/apiFlights";
+import {
+  FlightSearchProvider,
+  useFlightSearch,
+} from "@/app/_components/FlightSearchContext";
+import FlightCities from "@/app/_components/FlightCities";
+import FlightCalendar from "@/app/_components/FlightCalendar";
+import FlightPassenger from "@/app/_components/FlightPassenger";
 
-function FlightSearch() {
-  const [flightType, setFlightType] = useState<string>("One Way");
+function FlightSearchForm() {
+  const router = useRouter();
+  const {
+    flightType,
+    setFlightType,
+    originCode,
+    destinationCode,
+    journeyDate,
+    returnDate,
+    adults,
+    children,
+    infants,
+    classType,
+  } = useFlightSearch();
 
   function handleClassChange(event: React.ChangeEvent<HTMLInputElement>) {
     setFlightType(event.target.value);
+  }
+
+  function handleSearch() {
+    if (!originCode || !destinationCode) {
+      alert("لطفا مبدا و مقصد را از لیست پیشنهادی انتخاب کنید");
+      return;
+    }
+
+    const params = buildFlightSearchParams({
+      flightType,
+      originCode,
+      destinationCode,
+      journeyDate,
+      returnDate,
+      adults,
+      children,
+      infants,
+      classType,
+    });
+
+    router.push(`/flights?${new URLSearchParams(params).toString()}`);
   }
 
   return (
@@ -48,7 +86,25 @@ function FlightSearch() {
         <FlightCalendar type={flightType} />
         <FlightPassenger />
       </div>
+
+      <div className="flex items-center justify-center mt-6">
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="bg-[#7167FF] hover:bg-[#5b51e6] text-white font-bold px-10 py-3.5 rounded-full shadow-lg shadow-[#7167FF]/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm tracking-wide"
+        >
+          Search Available Options
+        </button>
+      </div>
     </div>
+  );
+}
+
+function FlightSearch() {
+  return (
+    <FlightSearchProvider>
+      <FlightSearchForm />
+    </FlightSearchProvider>
   );
 }
 
