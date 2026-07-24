@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import FlightCities from "../../../../_components/FlightCities";
-import FlightCalendar from "../../../../_components/FlightCalendar";
-import FlightPassenger from "../../../../_components/FlightPassenger";
+import FlightCities from "../../../_components/FlightCities";
+import FlightCalendar from "../../../_components/FlightCalendar";
+import FlightPassenger from "../../../_components/FlightPassenger";
 
 function FlightSearch() {
   const [flightType, setFlightType] = useState<string>("One Way");

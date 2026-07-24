@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { Metadata } from "next";
 import {
   filterHotels,
   getPriceBounds,
@@ -8,46 +10,82 @@ import {
 import HotelFilters from "@/app/(marketing)/hotels/_components/HotelFilters";
 import HotelHero from "@/app/(marketing)/hotels/_components/HotelHero";
 import HotelResultCard from "@/app/(marketing)/hotels/_components/HotelResultCard";
+import HotelResultCardSkeleton from "@/app/(marketing)/hotels/_components/HotelResultCardSkeleton";
 import HotelResultsHeader from "@/app/(marketing)/hotels/_components/HotelResultsHeader";
 import HotelSearch from "@/app/(marketing)/hotels/_components/HotelSearch";
 import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
-import { mockHotels } from "@/app/_components/mockHotels";
-import { Hotel } from "./hotel";
-import { Metadata } from "next";
 import { getAllHotels } from "@/lib/services/apiHotels";
-import { log } from "console";
-// import { mockHotels } from "@/types/mockHotels";
 
 export const metadata: Metadata = {
   title: "Hotels",
 };
 
-async function getHotels(): Promise<Hotel[]> {
-  const res = await fetch(`${process.env.API_URL}/hotels`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to load hotels");
-  const json = await res.json();
-  return json.data as Hotel[];
-}
-void getHotels; // wire this in once the API is ready; mockHotels is used below for now
-
 interface HotelsPageProps {
   searchParams: Promise<HotelSearchParams>;
 }
 
-export default async function HotelsPage({ searchParams }: HotelsPageProps) {
+const SKELETON_COUNT = 5;
+
+function ResultsListSkeleton() {
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+        <HotelResultCardSkeleton key={index} />
+      ))}
+    </div>
+  );
+}
+
+async function HotelResultsList({
+  searchParams,
+}: {
+  searchParams: Promise<HotelSearchParams>;
+}) {
   const params = await searchParams;
   const res = await getAllHotels();
   const allHotels = res?.data?.hotels ?? [];
 
-  console.log(allHotels);
+  const filtered = filterHotels(allHotels, params);
+  const results = sortHotels(filtered, params.sort);
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center px-6 py-24 text-center sm:py-32">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#7167FF]/10">
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className="h-10 w-10 text-[#7167FF]"
+            fill="currentColor"
+          >
+            <path d="M7 13c0-2.76 2.24-5 5-5s5 2.24 5 5v3H7v-3zm-3 5h16v2H4v-2zM6 8a2 2 0 114 0 2 2 0 01-4 0z" />
+          </svg>
+        </div>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          No hotels match your filters
+        </p>
+        <p className="mt-3 text-base text-slate-500 dark:text-slate-400">
+          Try widening your price range or clearing a filter.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      {results.map((hotel) => (
+        <HotelResultCard key={hotel._id} hotel={hotel} />
+      ))}
+    </div>
+  );
+}
+
+export default async function HotelsPage({ searchParams }: HotelsPageProps) {
+  const res = await getAllHotels();
+  const allHotels = res?.data?.hotels ?? [];
 
   const propertyTypeOptions = getPropertyTypeOptions(allHotels);
   const priceBounds = getPriceBounds(allHotels);
-
-  const filtered = filterHotels(allHotels, params);
-  const results = sortHotels(filtered, params.sort);
 
   return (
     <main className="min-h-screen pb-24 transition-colors duration-300">
@@ -74,37 +112,11 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
           </aside>
 
           <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <HotelResultsHeader
-              count={results.length}
-              sortSlot={<HotelSort />}
-            />
+            <HotelResultsHeader count={0} sortSlot={<HotelSort />} />
 
-            {results.length > 0 ? (
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {results.map((hotel) => (
-                  <HotelResultCard key={hotel._id} hotel={hotel} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center px-6 py-24 text-center sm:py-32">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#7167FF]/10">
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 24 24"
-                    className="h-10 w-10 text-[#7167FF]"
-                    fill="currentColor"
-                  >
-                    <path d="M7 13c0-2.76 2.24-5 5-5s5 2.24 5 5v3H7v-3zm-3 5h16v2H4v-2zM6 8a2 2 0 114 0 2 2 0 01-4 0z" />
-                  </svg>
-                </div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  No hotels match your filters
-                </p>
-                <p className="mt-3 text-base text-slate-500 dark:text-slate-400">
-                  Try widening your price range or clearing a filter.
-                </p>
-              </div>
-            )}
+            <Suspense fallback={<ResultsListSkeleton />}>
+              <HotelResultsList searchParams={searchParams} />
+            </Suspense>
           </section>
         </div>
       </div>

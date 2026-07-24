@@ -1,17 +1,50 @@
+import { Suspense } from "react";
 import Title from "./Title";
 import HotelCardSkeleton from "./HotelCardSkeleton";
 import HotelCard from "./HotelCard";
-import { mockHotels } from "./mockHotels";
 import Link from "next/link";
 import { getLatestHotels } from "@/lib/services/apiHotels";
 
-const SKELETON_COUNT = 4;
+const SKELETON_COUNT = 8;
 
-export default async function HotelSection() {
-  const isLoading = false;
+async function HotelList() {
   const response = await getLatestHotels();
   const data = response?.data?.hotels ?? [];
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex w-full flex-col items-center gap-2 py-20 text-center">
+        <HotelOffIcon className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+        <p className="font-interBold text-xl text-slate-700 dark:text-slate-300">
+          No hotels found
+        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Try adjusting your dates or destination to see more options.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,305px)] justify-center gap-8 pt-10 max-lg:px-6">
+      {data.map((hotel) => (
+        <HotelCard data={hotel} key={hotel._id} />
+      ))}
+    </div>
+  );
+}
+
+function HotelListSkeleton() {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,305px)] justify-center gap-8 pt-10 max-lg:px-6">
+      {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+        <HotelCardSkeleton key={index} />
+      ))}
+    </div>
+  );
+}
+
+export default function HotelSection() {
   return (
     <div className="w-full shrink-0 bg-slate-100 py-20 dark:bg-slate-900">
       <div className="container mx-auto max-w-[1320px]">
@@ -21,29 +54,9 @@ export default async function HotelSection() {
           isCommentTitle={false}
         />
 
-        {isLoading ? (
-          <div className="grid grid-cols-[repeat(auto-fit,305px)] justify-center gap-8 pt-10 max-lg:px-6">
-            {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-              <HotelCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : data && data.length > 0 ? (
-          <div className="grid grid-cols-[repeat(auto-fit,305px)] justify-center gap-8 pt-10 max-lg:px-6">
-            {data.map((hotel) => (
-              <HotelCard data={hotel} key={hotel._id} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex w-full flex-col items-center gap-2 py-20 text-center">
-            <HotelOffIcon className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-            <p className="font-interBold text-xl text-slate-700 dark:text-slate-300">
-              No hotels found
-            </p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Try adjusting your dates or destination to see more options.
-            </p>
-          </div>
-        )}
+        <Suspense fallback={<HotelListSkeleton />}>
+          <HotelList />
+        </Suspense>
 
         <Link
           href="/hotels"

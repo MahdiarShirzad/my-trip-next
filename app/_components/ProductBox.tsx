@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactElement, useState } from "react";
-import FlightSearch from "../(marketing)/flights/[id]/_components/FlightSearch";
+import FlightSearch from "@/app/(marketing)/flights/_components/FlightSearch";
 import HotelSearch from "../(marketing)/hotels/_components/HotelSearch";
 // import HotelSearch from "./HotelSearch";
 
