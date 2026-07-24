@@ -1,19 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-const roomTypes = ["Single Room", "Double Room", "Deluxe Room"];
+import { useHotelSearch } from "./HotelSearchContext";
+import { ROOM_TYPE_OPTIONS } from "@/lib/hotel-filters";
 
 export default function HotelPassenger() {
-  const [tabIsOpen, setTabIsOpen] = useState<boolean>(false);
-  const [roomType, setRoomType] = useState<string>("Double Room");
-
-  const [adults, setAdults] = useState<number>(1);
-  const [children, setChildren] = useState<number>(0);
-  const [infants, setInfants] = useState<number>(0);
-  const [roomNumber, setRoomNumber] = useState<number>(1);
-
+  const [tabIsOpen, setTabIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const {
+    adults,
+    children,
+    infants,
+    changeGuestCount,
+    roomNumber,
+    changeRoomNumber,
+    roomType,
+    setRoomType,
+  } = useHotelSearch();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,20 +32,9 @@ export default function HotelPassenger() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function handlePassengerChange(
-    category: "adults" | "children" | "infants",
-    value: number,
-  ) {
-    if (category === "adults") setAdults((n) => Math.max(n + value, 1));
-    if (category === "children") setChildren((n) => Math.max(n + value, 0));
-    if (category === "infants") setInfants((n) => Math.max(n + value, 0));
-  }
-
-  function handleRoomNumber(value: number) {
-    setRoomNumber((n) => Math.max(n + value, 1));
-  }
-
   const totalGuests = adults + children + infants;
+  const activeRoomLabel =
+    ROOM_TYPE_OPTIONS.find((r) => r.value === roomType)?.label ?? "Double";
 
   const counters: {
     key: "adults" | "children" | "infants";
@@ -89,7 +82,7 @@ export default function HotelPassenger() {
           {totalGuests > 1 ? "s" : ""}
         </p>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-          {roomType}
+          {activeRoomLabel}
         </p>
       </button>
 
@@ -110,7 +103,7 @@ export default function HotelPassenger() {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => handlePassengerChange(key, -1)}
+                    onClick={() => changeGuestCount(key, -1)}
                     disabled={key === "adults" ? value <= 1 : value <= 0}
                     className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
@@ -121,7 +114,7 @@ export default function HotelPassenger() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => handlePassengerChange(key, 1)}
+                    onClick={() => changeGuestCount(key, 1)}
                     className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] transition-colors"
                   >
                     +
@@ -130,13 +123,12 @@ export default function HotelPassenger() {
               </div>
             ))}
 
-            {/* Rooms counter — same row pattern, kept distinct from guest counters */}
             <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-700">
               <p className="font-semibold text-sm">Rooms</p>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => handleRoomNumber(-1)}
+                  onClick={() => changeRoomNumber(-1)}
                   disabled={roomNumber <= 1}
                   className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
@@ -147,7 +139,7 @@ export default function HotelPassenger() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => handleRoomNumber(1)}
+                  onClick={() => changeRoomNumber(1)}
                   className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[#7167FF] bg-[#7167FF1a] hover:bg-[#7167FF33] transition-colors"
                 >
                   +
@@ -159,17 +151,17 @@ export default function HotelPassenger() {
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
             <p className="font-semibold text-sm mb-2.5">Room Type</p>
             <div className="flex flex-col gap-2">
-              {roomTypes.map((type) => (
+              {ROOM_TYPE_OPTIONS.map(({ value, label }) => (
                 <label
-                  key={type}
-                  htmlFor={type.toLowerCase().replace(" ", "-")}
+                  key={value}
+                  htmlFor={value}
                   className="flex items-center gap-2.5 cursor-pointer text-sm"
                 >
                   <span
                     className={`relative w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors
-                      ${roomType === type ? "border-[#7167FF]" : "border-slate-300 dark:border-slate-600"}`}
+                      ${roomType === value ? "border-[#7167FF]" : "border-slate-300 dark:border-slate-600"}`}
                   >
-                    {roomType === type && (
+                    {roomType === value && (
                       <span className="w-2 h-2 rounded-full bg-[#7167FF]" />
                     )}
                   </span>
@@ -177,12 +169,12 @@ export default function HotelPassenger() {
                     className="sr-only"
                     type="radio"
                     name="roomType"
-                    id={type.toLowerCase().replace(" ", "-")}
-                    value={type}
-                    checked={roomType === type}
-                    onChange={(e) => setRoomType(e.target.value)}
+                    id={value}
+                    value={value}
+                    checked={roomType === value}
+                    onChange={() => setRoomType(value)}
                   />
-                  {type}
+                  {label}
                 </label>
               ))}
             </div>

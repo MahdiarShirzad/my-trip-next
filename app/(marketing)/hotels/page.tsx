@@ -14,7 +14,7 @@ import HotelResultCardSkeleton from "@/app/(marketing)/hotels/_components/HotelR
 import HotelResultsHeader from "@/app/(marketing)/hotels/_components/HotelResultsHeader";
 import HotelSearch from "@/app/(marketing)/hotels/_components/HotelSearch";
 import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
-import { getAllHotels } from "@/lib/services/apiHotels";
+import { buildBackendHotelQuery, getAllHotels } from "@/lib/services/apiHotels";
 
 export const metadata: Metadata = {
   title: "Hotels",
@@ -42,7 +42,14 @@ async function HotelResultsList({
   searchParams: Promise<HotelSearchParams>;
 }) {
   const params = await searchParams;
-  const res = await getAllHotels();
+
+  // فقط پارامترهایی که بک‌اند می‌فهمه (location.city, minPrice/maxPrice,
+  // roomType, capacity, ...) پاس داده میشه. star/minGuestRating/amenity/sort
+  // سمت فرانت با filterHotels اعمال میشن.
+  const backendQuery = buildBackendHotelQuery(
+    params as Record<string, string | string[] | undefined>,
+  );
+  const res = await getAllHotels(backendQuery);
   const allHotels = res?.data?.hotels ?? [];
 
   const filtered = filterHotels(allHotels, params);
@@ -93,12 +100,8 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
 
       <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
         <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
+          {/* دکمه‌ی سرچ الان خودِ HotelSearch داره؛ دکمه‌ی جدای قبلی (بدون onClick) حذف شد */}
           <HotelSearch />
-          <div className="flex items-center justify-center mt-6">
-            <button className="bg-[#7167FF] hover:bg-[#5b51e6] text-white font-bold px-10 py-3.5 rounded-full shadow-lg shadow-[#7167FF]/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm tracking-wide">
-              Search Available Stays
-            </button>
-          </div>
         </div>
       </div>
 

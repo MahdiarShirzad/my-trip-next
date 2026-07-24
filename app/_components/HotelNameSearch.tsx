@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useHotelSearch } from "./HotelSearchContext";
 
 export default function HotelNameSearch() {
-  const [hotelName, setHotelName] = useState<string>("");
+  const { destinationCity, setDestinationCity } = useHotelSearch();
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 border border-transparent focus-within:border-[#7167FF]/40 focus-within:bg-[#7167FF0d] transition-colors duration-150">
@@ -36,10 +36,10 @@ export default function HotelNameSearch() {
       <input
         className="font-bold text-lg mt-1.5 block bg-transparent focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:font-semibold w-full text-slate-800 dark:text-white"
         placeholder="Hotel or city"
-        value={hotelName}
-        onChange={(e) => setHotelName(e.target.value)}
+        value={destinationCity}
+        onChange={(e) => setDestinationCity(e.target.value)}
       />
-      {hotelName === "" && (
+      {destinationCity === "" && (
         <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
           Search by name or destination
         </p>

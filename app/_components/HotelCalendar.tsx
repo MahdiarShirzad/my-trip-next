@@ -1,29 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useHotelSearch } from "./HotelSearchContext";
 
 export default function HotelCalendar() {
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  // Initialize dates only on client
-  useEffect(() => {
-    const today = new Date();
-    const inThreeDays = new Date(today);
-    inThreeDays.setDate(inThreeDays.getDate() + 3);
-
-    setCheckIn(today);
-    setCheckOut(inThreeDays);
-    setMounted(true);
-  }, []);
+  const { checkInDate, setCheckInDate, checkOutDate, setCheckOutDate } =
+    useHotelSearch();
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Don't render until mounted (client-side)
-  if (!mounted || !checkIn || !checkOut) {
+  if (!checkInDate || !checkOutDate) {
     return (
       <div className="flex-1 max-lg:w-full">
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 h-full animate-pulse" />
@@ -60,21 +47,13 @@ export default function HotelCalendar() {
               className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
               calendarClassName="mytrip-datepicker"
               popperClassName="mytrip-datepicker-popper"
-              selected={checkIn}
-              onChange={(date: Date | null) => {
-                if (!date) return;
-                setCheckIn(date);
-                if (date >= checkOut) {
-                  const next = new Date(date);
-                  next.setDate(next.getDate() + 1);
-                  setCheckOut(next);
-                }
-              }}
+              selected={checkInDate}
+              onChange={(date: Date | null) => date && setCheckInDate(date)}
               dateFormat="MMM d, yyyy"
               minDate={new Date()}
             />
             <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-              {weekDays[checkIn.getDay()]}
+              {weekDays[checkInDate.getDay()]}
             </p>
           </div>
 
@@ -83,13 +62,13 @@ export default function HotelCalendar() {
               className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
               calendarClassName="mytrip-datepicker"
               popperClassName="mytrip-datepicker-popper"
-              selected={checkOut}
-              onChange={(date: Date | null) => date && setCheckOut(date)}
+              selected={checkOutDate}
+              onChange={(date: Date | null) => date && setCheckOutDate(date)}
               dateFormat="MMM d, yyyy"
-              minDate={new Date(checkIn.getTime() + 86400000)}
+              minDate={new Date(checkInDate.getTime() + 86400000)}
             />
             <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-              {weekDays[checkOut.getDay()]}
+              {weekDays[checkOutDate.getDay()]}
             </p>
           </div>
         </div>
