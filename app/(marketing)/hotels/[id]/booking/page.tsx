@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
-import { HotelDetail } from "../../hotel-booking";
 import HotelBookingHeader from "../../_components/HotelBookingHeader";
 import HotelBookingClient from "../../_components/HotelBookingClient";
 import type { Metadata } from "next";
-import { getHotel } from "@/lib/services/apiHotels";
+import { getHotelForBooking } from "@/lib/services/apiHotels";
 
 export async function generateMetadata({
   params,
@@ -11,28 +10,16 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const res = await getHotel(id);
+  const res = await getHotelForBooking(id);
   const hotel = res?.data?.hotel;
 
   if (!hotel) {
-    return {
-      title: "Hotel Not Found",
-    };
+    return { title: "Hotel Not Found" };
   }
 
   return {
-    title: `Booking ${hotel?.name} | ${hotel.location.city}`,
+    title: `Booking ${hotel.name} | ${hotel.location.city}`,
     description: `Book ${hotel.name} in ${hotel.location.city}. ${hotel.starRating}-star hotel with prices starting from ${hotel.minPrice}.`,
-  };
-}
-
-// TODO: replace with your real auth/session lookup
-async function getCurrentUser() {
-  return {
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
   };
 }
 
@@ -44,9 +31,8 @@ export default async function HotelBookingPage({
   params,
 }: HotelBookingPageProps) {
   const { id } = await params;
-  const res = await getHotel(id);
+  const res = await getHotelForBooking(id);
   const hotel = res?.data?.hotel;
-  const currentUser = await getCurrentUser();
 
   if (!hotel) {
     notFound();
@@ -55,9 +41,8 @@ export default async function HotelBookingPage({
   return (
     <>
       <HotelBookingHeader />
-
       <div className="mx-auto my-16 max-w-[1320px] px-6 lg:my-20">
-        <HotelBookingClient hotel={hotel} currentUser={currentUser} />
+        <HotelBookingClient hotel={hotel} />
       </div>
     </>
   );

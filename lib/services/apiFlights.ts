@@ -91,3 +91,10 @@ export function getFlight(idOrSlug: string) {
     { next: { revalidate: 300 } } as RequestInit,
   );
 }
+
+export function getFlightForBooking(idOrSlug: string) {
+  return apiRequest<{ status: string; data: { flight: Flight } }>(
+    `/flights/${idOrSlug}`,
+    { cache: "no-store" } as RequestInit,
+  );
+}

@@ -30,7 +30,6 @@ export function buildHotelSearchParams(
   values: HotelSearchFormValues,
 ): Record<string, string> {
   return {
-    // به‌جای location.city، یک کلید عمومی‌تر که هم اسم هتل هم شهر رو پوشش بده
     search: values.destinationCity.trim(),
     checkIn: toLocalDate(values.checkInDate),
     checkOut: toLocalDate(values.checkOutDate),
@@ -44,7 +43,7 @@ export function buildHotelSearchParams(
 }
 
 const BACKEND_QUERY_KEYS = [
-  "search", // ← جایگزین location.city
+  "search",
   "minPrice",
   "maxPrice",
   "roomType",
@@ -85,5 +84,12 @@ export function getHotel(idOrSlug: string) {
   return apiRequest<{ status: string; data: { hotel: Hotel } }>(
     `/hotels/${idOrSlug}`,
     { next: { revalidate: 300 } } as RequestInit,
+  );
+}
+
+export function getHotelForBooking(idOrSlug: string) {
+  return apiRequest<{ status: string; data: { hotel: Hotel } }>(
+    `/hotels/${idOrSlug}`,
+    { cache: "no-store" } as RequestInit,
   );
 }

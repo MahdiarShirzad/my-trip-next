@@ -1,4 +1,3 @@
-// lib/services/apiBookings.ts
 import { apiRequest } from "../utils/apiClient";
 
 export interface PopulatedFlight {
@@ -87,4 +86,25 @@ interface SingleBookingResponse {
 export async function getBookingById(id: string) {
   const res = await apiRequest<SingleBookingResponse>(`/bookings/${id}`);
   return res?.data?.booking ?? null;
+}
+
+export interface CreateHotelBookingInput {
+  hotelId: string;
+  roomNumbers: string[];
+  checkInDate: string;
+  checkOutDate: string;
+  roomType: string;
+  guests: {
+    name: string;
+    email: string;
+    phone: string;
+    nationalId: string;
+  }[];
+}
+
+export async function createHotelBooking(input: CreateHotelBookingInput) {
+  return apiRequest<CreateBookingResponse>("/bookings/hotels", {
+    method: "POST",
+    body: input,
+  });
 }

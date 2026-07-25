@@ -15,8 +15,6 @@ export interface ConfirmHotelBookingResult {
   message: string;
 }
 
-// TODO: wire this up to your real booking logic — verify room is still available,
-// write booking to DB, mark room as booked for the given dates, etc.
 export async function confirmHotelBooking(
   input: ConfirmHotelBookingInput,
 ): Promise<ConfirmHotelBookingResult> {

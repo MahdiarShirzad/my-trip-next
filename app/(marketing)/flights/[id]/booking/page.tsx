@@ -1,11 +1,9 @@
 import FlightBookingHeader from "@/app/(marketing)/flights/[id]/booking/_components/FlightBookingHeader";
-import { FlightDetail } from "./flight-booking";
 import FlightBookingClient from "@/app/(marketing)/flights/[id]/booking/_components/FlightBookingClient";
-import { mockFlights } from "@/types/mock-flights";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
-import { getFlight } from "@/lib/services/apiFlights";
+import { getFlight, getFlightForBooking } from "@/lib/services/apiFlights";
 
 export async function generateMetadata({
   params,
@@ -48,7 +46,7 @@ export default async function FlightBookingPage({
 }: FlightBookingPageProps) {
   const { id } = await params;
 
-  const res = await getFlight(id);
+  const res = await getFlightForBooking(id);
 
   const flight = res?.data?.flight;
 

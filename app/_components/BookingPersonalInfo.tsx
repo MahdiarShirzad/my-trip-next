@@ -159,7 +159,7 @@ export default function BookingPersonalInfo({
             />
           </div>
 
-          <div className="w-[48%] max-lg:w-full">
+          {/* <div className="w-[48%] max-lg:w-full">
             <label
               className="text-sm font-bold text-slate-700 dark:text-slate-200"
               htmlFor="nationalId"
@@ -182,7 +182,7 @@ export default function BookingPersonalInfo({
               component="div"
               className="mt-1 text-sm text-red-500"
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"
