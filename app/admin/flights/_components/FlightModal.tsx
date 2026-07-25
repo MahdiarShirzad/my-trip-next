@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, CSSProperties } from "react";
 import Modal from "../../_components/Modal";
 import { api } from "../../_lib/api";
 import { Flight, Seat } from "../../_lib/types";
@@ -43,8 +43,10 @@ function classRowsFromSeats(
     first: { count: 0, price: 0 },
   };
   (seats ?? []).forEach((s) => {
-    base[s.class].count += 1;
-    base[s.class].price = s.price;
+    if (base[s.class as SeatClass]) {
+      base[s.class as SeatClass].count += 1;
+      base[s.class as SeatClass].price = s.price;
+    }
   });
   return base;
 }
@@ -82,15 +84,17 @@ export default function FlightModal({
     if (!open) return;
     if (flight) {
       setForm({
-        airline: flight.airline,
-        flightNumber: flight.flightNumber,
-        originCode: flight.origin.code,
-        originCity: flight.origin.city,
-        destinationCode: flight.destination.code,
-        destinationCity: flight.destination.city,
-        departureTime: flight.departureTime.slice(0, 16),
-        arrivalTime: flight.arrivalTime.slice(0, 16),
-        status: flight.status,
+        airline: flight.airline ?? "",
+        flightNumber: flight.flightNumber ?? "",
+        originCode: flight.origin?.code ?? "",
+        originCity: flight.origin?.city ?? "",
+        destinationCode: flight.destination?.code ?? "",
+        destinationCity: flight.destination?.city ?? "",
+        departureTime: flight.departureTime
+          ? flight.departureTime.slice(0, 16)
+          : "",
+        arrivalTime: flight.arrivalTime ? flight.arrivalTime.slice(0, 16) : "",
+        status: flight.status ?? "scheduled",
       });
       setClassRows(classRowsFromSeats(flight.seats));
     } else {
@@ -171,7 +175,7 @@ export default function FlightModal({
             <input
               required
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.airline}
               onChange={(e) => setForm({ ...form, airline: e.target.value })}
             />
@@ -181,7 +185,7 @@ export default function FlightModal({
             <input
               required
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.flightNumber}
               onChange={(e) =>
                 setForm({ ...form, flightNumber: e.target.value })
@@ -200,7 +204,7 @@ export default function FlightModal({
               placeholder="Airport code (e.g. THR)"
               maxLength={3}
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.originCode}
               onChange={(e) => setForm({ ...form, originCode: e.target.value })}
             />
@@ -208,7 +212,7 @@ export default function FlightModal({
               required
               placeholder="Origin city"
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.originCity}
               onChange={(e) => setForm({ ...form, originCity: e.target.value })}
             />
@@ -222,7 +226,7 @@ export default function FlightModal({
               placeholder="Airport code (e.g. DXB)"
               maxLength={3}
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.destinationCode}
               onChange={(e) =>
                 setForm({ ...form, destinationCode: e.target.value })
@@ -232,7 +236,7 @@ export default function FlightModal({
               required
               placeholder="Destination city"
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.destinationCity}
               onChange={(e) =>
                 setForm({ ...form, destinationCity: e.target.value })
@@ -248,7 +252,7 @@ export default function FlightModal({
               required
               type="datetime-local"
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.departureTime}
               onChange={(e) =>
                 setForm({ ...form, departureTime: e.target.value })
@@ -261,7 +265,7 @@ export default function FlightModal({
               required
               type="datetime-local"
               className={inputClass}
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
               value={form.arrivalTime}
               onChange={(e) =>
                 setForm({ ...form, arrivalTime: e.target.value })
@@ -274,7 +278,7 @@ export default function FlightModal({
           <label className={labelClass}>Flight Status</label>
           <select
             className={inputClass}
-            style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+            style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
             value={form.status}
             onChange={(e) =>
               setForm({ ...form, status: e.target.value as Flight["status"] })
@@ -301,16 +305,14 @@ export default function FlightModal({
                   min={0}
                   placeholder="Seat count"
                   className={inputClass}
-                  style={
-                    { "--tw-ring-color": "#7167FF" } as React.CSSProperties
-                  }
-                  value={classRows[cls].count}
+                  style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
+                  value={classRows[cls].count || ""}
                   onChange={(e) =>
                     setClassRows({
                       ...classRows,
                       [cls]: {
                         ...classRows[cls],
-                        count: Number(e.target.value),
+                        count: Math.max(0, Number(e.target.value)),
                       },
                     })
                   }
@@ -320,16 +322,14 @@ export default function FlightModal({
                   min={0}
                   placeholder="Price"
                   className={inputClass}
-                  style={
-                    { "--tw-ring-color": "#7167FF" } as React.CSSProperties
-                  }
-                  value={classRows[cls].price}
+                  style={{ "--tw-ring-color": "#7167FF" } as CSSProperties}
+                  value={classRows[cls].price || ""}
                   onChange={(e) =>
                     setClassRows({
                       ...classRows,
                       [cls]: {
                         ...classRows[cls],
-                        price: Number(e.target.value),
+                        price: Math.max(0, Number(e.target.value)),
                       },
                     })
                   }
@@ -356,7 +356,7 @@ export default function FlightModal({
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60 transition-colors"
             style={{ backgroundColor: "#7167FF" }}
           >
             {saving ? "Saving..." : "Save Flight"}

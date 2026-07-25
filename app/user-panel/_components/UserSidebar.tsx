@@ -1,8 +1,3 @@
-// app/user-panel/_components/UserSidebar.tsx
-// Server Component — pure nav markup. Active-link styling is handled via
-// a tiny client component (UserSidebarLink) so the sidebar shell itself
-// stays server-rendered.
-
 import UserSidebarLink from "./UserSidebarLink";
 
 const NAV_ITEMS = [
@@ -41,7 +36,12 @@ export default function UserSidebar() {
         </p>
         <nav className="flex flex-row gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
           {NAV_ITEMS.map((item) => (
-            <UserSidebarLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
+            <UserSidebarLink
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+            />
           ))}
         </nav>
       </div>

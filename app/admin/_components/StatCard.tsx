@@ -1,44 +1,39 @@
 import { LucideIcon } from "lucide-react";
 
+interface StatCardProps {
+  label: string;
+  value: number | string;
+  icon: LucideIcon;
+  accent?: "purple" | "amber" | "emerald" | "sky";
+}
+
 export default function StatCard({
   label,
   value,
   icon: Icon,
-  accent = "indigo",
-}: {
-  label: string;
-  value: number | string;
-  icon: LucideIcon;
-  accent?: "indigo" | "amber" | "emerald" | "sky";
-}) {
-  const accents: Record<string, string> = {
-    indigo: "text-indigo-600 dark:text-indigo-400",
-    amber:
-      "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
-    emerald:
-      "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
-    sky: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
+  accent = "purple",
+}: StatCardProps) {
+  const accentStyles = {
+    purple: "bg-[#7167FF]/10 text-[#7167FF]",
+    amber: "bg-amber-500/10 text-amber-500",
+    emerald: "bg-emerald-500/10 text-emerald-500",
+    sky: "bg-sky-500/10 text-sky-500",
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 flex items-center justify-between">
+    <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-[#111827]">
       <div>
-        <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+        <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+        <p className="mt-2 font-mono text-2xl font-bold text-slate-900 dark:text-white">
           {value}
         </p>
       </div>
       <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-          accent === "indigo" ? "" : accents[accent]
-        }`}
-        style={
-          accent === "indigo"
-            ? { backgroundColor: "rgba(113, 103, 255, 0.1)", color: "#7167FF" }
-            : undefined
-        }
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${accentStyles[accent]}`}
       >
-        <Icon className="w-5 h-5" />
+        <Icon className="h-6 w-6" />
       </div>
     </div>
   );

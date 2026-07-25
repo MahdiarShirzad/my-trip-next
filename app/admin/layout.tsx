@@ -13,12 +13,18 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen mt-20 bg-slate-50 dark:bg-[#070b14]">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col ">
-        <Topbar />
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+    <main className="min-h-screen bg-slate-50 dark:bg-[#0B1120]">
+      <div className="h-20 w-full bg-[#0B1120]" />
+
+      <div className="mx-auto max-w-[1320px] px-6 py-12">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <Sidebar />
+          <div className="min-w-0 flex-1">
+            <Topbar />
+            <div className="mt-6">{children}</div>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

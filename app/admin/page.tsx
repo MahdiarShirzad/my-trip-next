@@ -8,6 +8,7 @@ import {
   Users,
   Plane,
   BuildingIcon,
+  LayoutDashboard,
 } from "lucide-react";
 import StatCard from "./_components/StatCard";
 import { api, buildQuery } from "./_lib/api";
@@ -22,8 +23,6 @@ interface Stats {
   totalHotels: number;
 }
 
-// Reads the `total` field that ApiFeatures-based list endpoints already return,
-// requesting the smallest possible page (limit=1) so we only pay for the count.
 async function countFrom(path: string, filters: Record<string, string> = {}) {
   const query = buildQuery({ limit: 1, page: 1, ...filters });
   const res = await api.get<Paginated<unknown>>(`${path}${query}`);
@@ -84,59 +83,78 @@ export default function DashboardPage() {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-[#7167FF]" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          Welcome 👋
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          An overview of MyTrip website status
-        </p>
+    <div className="space-y-6">
+      {/* هدر دشبورد با استایل بنر یوزر پنل */}
+      <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-[#111827]">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#7167FF]/10 text-[#7167FF]">
+          <LayoutDashboard className="h-7 w-7" />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+              Admin Overview 👋
+            </h1>
+            <span className="rounded-full bg-[#7167FF]/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[#7167FF]">
+              Live Stats
+            </span>
+          </div>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+            An overview of MyTrip website status and management performance.
+          </p>
+        </div>
       </div>
 
+      {/* نمایش خطا */}
       {error && (
-        <div className="rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 text-sm px-4 py-3">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* شبکه‌بندی کارت‌های آمار */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Total Bookings"
-          value={loading ? "—" : (stats?.totalBookings ?? 0)}
+          value={stats?.totalBookings ?? 0}
           icon={CalendarCheck}
-          accent="custom"
-          style={{ accentColor: "#7167FF" }}
+          accent="purple"
         />
         <StatCard
           label="Pending Bookings"
-          value={loading ? "—" : (stats?.pendingBookings ?? 0)}
+          value={stats?.pendingBookings ?? 0}
           icon={Clock}
           accent="amber"
         />
         <StatCard
           label="Paid Bookings"
-          value={loading ? "—" : (stats?.paidBookings ?? 0)}
+          value={stats?.paidBookings ?? 0}
           icon={CreditCard}
           accent="emerald"
         />
         <StatCard
           label="Total Users"
-          value={loading ? "—" : (stats?.totalUsers ?? 0)}
+          value={stats?.totalUsers ?? 0}
           icon={Users}
           accent="sky"
         />
         <StatCard
           label="Total Flights"
-          value={loading ? "—" : (stats?.totalFlights ?? 0)}
+          value={stats?.totalFlights ?? 0}
           icon={Plane}
-          accent="custom"
-          style={{ accentColor: "#7167FF" }}
+          accent="purple"
         />
         <StatCard
           label="Total Hotels"
-          value={loading ? "—" : (stats?.totalHotels ?? 0)}
+          value={stats?.totalHotels ?? 0}
           icon={BuildingIcon}
           accent="amber"
         />

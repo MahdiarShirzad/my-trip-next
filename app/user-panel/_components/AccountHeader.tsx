@@ -1,6 +1,3 @@
-// app/user-panel/account/_components/AccountHeader.tsx
-// Server Component.
-
 interface AccountHeaderProps {
   name: string;
   email: string;
