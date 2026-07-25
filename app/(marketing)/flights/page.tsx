@@ -19,6 +19,7 @@ import {
   buildBackendFlightQuery,
   getAllFlights,
 } from "@/lib/services/apiFlights";
+import FlightResultsSection from "./_components/FlightResultsSection";
 
 export const metadata: Metadata = {
   title: "Flights",
@@ -92,8 +93,6 @@ async function FlightResultsList({
 export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const res = await getAllFlights();
   const data = res?.data?.flights ?? [];
-  const flightsCount = res?.results;
-
   const allFlights = adaptFlights(data);
 
   const airlineOptions = getAirlineOptions(allFlights);
@@ -105,7 +104,6 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
 
       <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
         <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
-          {/* FlightSearch خودش self-contained هست: Provider + فرم + دکمه‌ی سرچ */}
           <FlightSearch />
         </div>
       </div>
@@ -120,13 +118,15 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
           </aside>
 
           <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <FlightResultsHeader
-              count={flightsCount}
-              sortSlot={<FlightSort />}
-            />
-
-            <Suspense fallback={<ResultsListSkeleton />}>
-              <FlightResultsList searchParams={searchParams} />
+            <Suspense
+              fallback={
+                <>
+                  <FlightResultsHeader count={0} sortSlot={<FlightSort />} />
+                  <ResultsListSkeleton />
+                </>
+              }
+            >
+              <FlightResultsSection searchParams={searchParams} />
             </Suspense>
           </section>
         </div>
