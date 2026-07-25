@@ -78,3 +78,13 @@ export async function createFlightBooking(input: CreateFlightBookingInput) {
     body: input,
   });
 }
+
+interface SingleBookingResponse {
+  status: string;
+  data: { booking: Booking };
+}
+
+export async function getBookingById(id: string) {
+  const res = await apiRequest<SingleBookingResponse>(`/bookings/${id}`);
+  return res?.data?.booking ?? null;
+}

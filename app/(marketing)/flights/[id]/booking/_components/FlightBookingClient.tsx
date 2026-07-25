@@ -13,6 +13,8 @@ import { useAuth } from "@/app/_components/AuthProvider";
 import { setNationalId } from "@/lib/services/apiAuth";
 import { createFlightBooking } from "@/lib/services/apiBookings";
 import { ApiError } from "@/lib/utils/apiClient";
+import { confirmPayment, initiatePayment } from "@/lib/services/apiPayments";
+import { useRouter } from "next/navigation";
 
 interface FlightBookingClientProps {
   flight: FlightDetail | null;
@@ -26,6 +28,7 @@ export default function FlightBookingClient({
     null,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const selectedSeat = useMemo(
     () =>
@@ -58,7 +61,7 @@ export default function FlightBookingClient({
         if (idRes?.data?.user) setUser(idRes.data.user);
       }
 
-      const res = await createFlightBooking({
+      const bookingRes = await createFlightBooking({
         flightId: flight._id,
         travelDate: flight.departureTime,
         passengers: [
@@ -72,9 +75,20 @@ export default function FlightBookingClient({
         ],
       });
 
-      if (res?.data?.booking) {
-        toast.success("Flight booked successfully!");
+      const booking = bookingRes?.data?.booking;
+      if (!booking) {
+        toast.error("Booking failed, please try again.");
+        return;
       }
+
+      const initRes = await initiatePayment(booking._id);
+      const transactionId = initRes?.data?.payment?.transactionId;
+
+      if (transactionId) {
+        await confirmPayment(transactionId);
+      }
+
+      router.push(`/booking-confirmation?bookingId=${booking._id}&type=flight`);
     } catch (err) {
       toast.error(
         err instanceof ApiError
