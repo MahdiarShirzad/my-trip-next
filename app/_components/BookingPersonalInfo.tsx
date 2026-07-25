@@ -15,6 +15,7 @@ interface BookingPersonalInfoProps {
   initialValues: BookingInfoValues;
   disabled: boolean;
   isSubmitting: boolean;
+  nationalIdLocked: boolean;
   onSubmit: (values: BookingInfoValues) => void;
 }
 
@@ -38,6 +39,7 @@ export default function BookingPersonalInfo({
   initialValues,
   disabled,
   isSubmitting,
+  nationalIdLocked,
   onSubmit,
 }: BookingPersonalInfoProps) {
   return (
@@ -56,26 +58,34 @@ export default function BookingPersonalInfo({
           <div className="w-[48%] max-lg:w-full">
             <label
               className="text-sm font-bold text-slate-700 dark:text-slate-200"
-              htmlFor="fullName"
+              htmlFor="nationalId"
             >
-              Full Name
+              National ID
             </label>
             <div className="mt-2 flex items-center gap-3 rounded-2xl border-2 border-slate-200 px-4 py-3.5 transition-colors focus-within:border-[#7167FF] dark:border-slate-700">
-              <UserIcon />
+              <IDIcon />
               <Field
-                className="block w-full bg-transparent px-1 capitalize text-slate-800 focus:outline-none dark:text-slate-200"
+                className="block w-full bg-transparent px-1 text-slate-800 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-200"
                 type="text"
-                title="fullName"
-                name="fullName"
-                id="fullName"
-                placeholder="Your Full Name"
+                title="nationalId"
+                name="nationalId"
+                id="nationalId"
+                disabled={nationalIdLocked}
+                placeholder="1234567890"
               />
             </div>
-            <ErrorMessage
-              name="fullName"
-              component="div"
-              className="mt-1 text-sm text-red-500"
-            />
+            {nationalIdLocked ? (
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-600">
+                National ID is verified on your account and cannot be changed
+                here.
+              </p>
+            ) : (
+              <ErrorMessage
+                name="nationalId"
+                component="div"
+                className="mt-1 text-sm text-red-500"
+              />
+            )}
           </div>
 
           <div className="w-[48%] max-lg:w-full">

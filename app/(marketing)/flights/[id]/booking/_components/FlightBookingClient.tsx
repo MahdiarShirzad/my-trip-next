@@ -9,21 +9,19 @@ import BookingPersonalInfo, {
 } from "@/app/_components/BookingPersonalInfo";
 import { FlightDetail } from "../flight-booking";
 import { confirmFlightBooking } from "../actions";
+import { useAuth } from "@/app/_components/AuthProvider";
+import { setNationalId } from "@/lib/services/apiAuth";
+import { createFlightBooking } from "@/lib/services/apiBookings";
+import { ApiError } from "@/lib/utils/apiClient";
 
 interface FlightBookingClientProps {
   flight: FlightDetail | null;
-  currentUser: {
-    fullName: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
 }
 
 export default function FlightBookingClient({
   flight,
-  currentUser,
 }: FlightBookingClientProps) {
+  const { user, setUser } = useAuth();
   const [selectedSeatNumber, setSelectedSeatNumber] = useState<string | null>(
     null,
   );
@@ -35,9 +33,11 @@ export default function FlightBookingClient({
     [flight, selectedSeatNumber],
   );
 
-  if (!flight) {
+  if (!flight || !user) {
     return null;
   }
+
+  const hasNationalId = Boolean(user.nationalId);
 
   function handleSelectSeat(seatNumber: string) {
     setSelectedSeatNumber((current) =>
@@ -53,21 +53,34 @@ export default function FlightBookingClient({
 
     setIsSubmitting(true);
     try {
-      const result = await confirmFlightBooking({
+      if (!hasNationalId && values.nationalId) {
+        const idRes = await setNationalId(values.nationalId);
+        if (idRes?.data?.user) setUser(idRes.data.user);
+      }
+
+      const res = await createFlightBooking({
         flightId: flight._id,
-        seatNumber: selectedSeat.seatNumber,
-        fullName: values.fullName,
-        phone: values.phone,
-        address: values.address,
+        travelDate: flight.departureTime,
+        passengers: [
+          {
+            name: values.fullName,
+            email: values.email,
+            phone: values.phone,
+            nationalId: values.nationalId ?? "",
+            seatNumber: selectedSeat.seatNumber,
+          },
+        ],
       });
 
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
+      if (res?.data?.booking) {
+        toast.success("Flight booked successfully!");
       }
-    } catch {
-      toast.error("Something went wrong, please try again.");
+    } catch (err) {
+      toast.error(
+        err instanceof ApiError
+          ? err.message
+          : "Something went wrong, please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -94,11 +107,15 @@ export default function FlightBookingClient({
 
         <BookingPersonalInfo
           initialValues={{
-            ...currentUser,
-            nationalId: "",
+            fullName: user.name ?? "",
+            email: user.email,
+            phone: user.phone ?? "",
+            address: "",
+            nationalId: user.nationalId ?? "",
           }}
           disabled={!selectedSeat}
           isSubmitting={isSubmitting}
+          nationalIdLocked={hasNationalId}
           onSubmit={handleSubmit}
         />
       </div>

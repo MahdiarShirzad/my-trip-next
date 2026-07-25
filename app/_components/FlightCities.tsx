@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFlightSearch } from "./FlightSearchContext";
 import { AIRPORTS, findAirportByCity } from "./airports";
 
@@ -18,6 +18,24 @@ export default function FlightCities() {
   const [openField, setOpenField] = useState<"origin" | "destination" | null>(
     null,
   );
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!openField) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpenField(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openField]);
 
   const canSwap = Boolean(originCity || destinationCity);
 
@@ -40,7 +58,10 @@ export default function FlightCities() {
   }
 
   return (
-    <div className="flex items-stretch relative max-lg:w-full w-full lg:flex-1">
+    <div
+      ref={containerRef}
+      className="flex items-stretch relative max-lg:w-full w-full lg:flex-1"
+    >
       {/* Origin */}
       <div className="flex-1 bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 border border-transparent focus-within:border-[#7167FF]/40 focus-within:bg-[#7167FF0d] transition-colors duration-150 relative">
         <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
@@ -66,23 +87,23 @@ export default function FlightCities() {
           value={originCity}
           onChange={(e) => {
             setOriginCity(e.target.value);
-            setOriginCode(""); // تا وقتی از لیست انتخاب نشه، کد معتبر نیست
+            setOriginCode("");
           }}
           onFocus={() => setOpenField("origin")}
           autoComplete="off"
         />
 
         {openField === "origin" && (
-          <ul className="absolute left-0 right-0 top-full mt-2 z-30 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden">
+          <ul className="absolute left-0 right-0 top-full mt-2 z-30 max-h-64 overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl">
             {suggestionsFor(originCity).map((a) => (
               <li key={a.code}>
                 <button
                   type="button"
                   onMouseDown={() => pickOrigin(a.city, a.code)}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#7167FF1a] flex justify-between"
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#7167FF1a] flex justify-between items-center gap-2"
                 >
-                  <span>{a.city}</span>
-                  <span className="text-slate-400">{a.code}</span>
+                  <span className="truncate">{a.city}</span>
+                  <span className="text-slate-400 shrink-0">{a.code}</span>
                 </button>
               </li>
             ))}
@@ -154,16 +175,16 @@ export default function FlightCities() {
         />
 
         {openField === "destination" && (
-          <ul className="absolute left-0 right-0 top-full mt-2 z-30 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden">
+          <ul className="absolute left-0 right-0 top-full mt-2 z-30 max-h-64 overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl">
             {suggestionsFor(destinationCity).map((a) => (
               <li key={a.code}>
                 <button
                   type="button"
                   onMouseDown={() => pickDestination(a.city, a.code)}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#7167FF1a] flex justify-between"
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#7167FF1a] flex justify-between items-center gap-2"
                 >
-                  <span>{a.city}</span>
-                  <span className="text-slate-400">{a.code}</span>
+                  <span className="truncate">{a.city}</span>
+                  <span className="text-slate-400 shrink-0">{a.code}</span>
                 </button>
               </li>
             ))}

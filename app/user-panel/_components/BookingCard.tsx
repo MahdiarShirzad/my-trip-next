@@ -1,7 +1,9 @@
-import { Booking } from "@/lib/mock-bookings";
+import type { Booking } from "@/lib/services/apiBookings";
+import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 
-function formatDateTime(iso: string) {
+function formatDateTime(iso?: string) {
+  if (!iso) return "—";
   return new Date(iso).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -11,7 +13,8 @@ function formatDateTime(iso: string) {
   });
 }
 
-function formatDate(iso: string) {
+function formatDate(iso?: string) {
+  if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -23,20 +26,20 @@ const CANCELLABLE_STATUSES = new Set(["confirmed", "pending"]);
 
 export default function BookingCard({ booking }: { booking: Booking }) {
   const canCancel = CANCELLABLE_STATUSES.has(booking.status);
+  const isFlight = booking.bookingType === "flight";
 
   return (
     <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-colors hover:border-[#7167FF]/40 dark:border-slate-800 dark:bg-[#111827]">
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        {/* Type + route/hotel info */}
         <div className="flex items-start gap-4">
           <div
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-              booking.type === "flight"
+              isFlight
                 ? "bg-[#7167FF]/10 text-[#7167FF]"
                 : "bg-sky-500/10 text-sky-500"
             }`}
           >
-            {booking.type === "flight" ? (
+            {isFlight ? (
               <svg
                 aria-hidden
                 viewBox="0 0 24 24"
@@ -63,52 +66,52 @@ export default function BookingCard({ booking }: { booking: Booking }) {
           </div>
 
           <div className="min-w-0">
-            {booking.type === "flight" ? (
+            {isFlight ? (
               <>
                 <p className="font-semibold text-slate-900 dark:text-white">
-                  {booking.origin}{" "}
+                  {booking.flightId?.origin.city ?? "—"}{" "}
                   <span className="text-slate-400">&rarr;</span>{" "}
-                  {booking.destination}
+                  {booking.flightId?.destination.city ?? "—"}
                 </p>
                 <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-                  {booking.airline} &middot; {booking.flightNumber}
+                  {booking.flightId?.airline} &middot;{" "}
+                  {booking.flightId?.flightNumber}
                 </p>
                 <p className="mt-1 font-mono text-xs text-slate-400 dark:text-slate-500">
-                  Departs {formatDateTime(booking.departureTime)}
+                  Departs {formatDateTime(booking.flightId?.departureTime)}
                 </p>
               </>
             ) : (
               <>
                 <p className="font-semibold text-slate-900 dark:text-white">
-                  {booking.hotelName}
+                  {booking.hotelId?.name ?? "—"}
                 </p>
                 <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-                  {booking.city} &middot; {booking.roomType}
+                  {booking.hotelId?.city} &middot; {booking.roomType}
                 </p>
                 <p className="mt-1 font-mono text-xs text-slate-400 dark:text-slate-500">
-                  {formatDate(booking.checkIn)} &ndash;{" "}
-                  {formatDate(booking.checkOut)}
+                  {formatDate(booking.checkInDate)} &ndash;{" "}
+                  {formatDate(booking.checkOutDate)}
                 </p>
               </>
             )}
           </div>
         </div>
 
-        {/* Status + price + actions */}
         <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-dashed border-slate-200 pt-4 sm:flex-col sm:items-end sm:border-t-0 sm:border-l sm:border-slate-200 sm:pl-6 sm:pt-0 dark:border-slate-800">
           <div className="flex flex-col items-start gap-1.5 sm:items-end">
             <StatusBadge status={booking.status} />
             <p className="font-mono text-lg font-bold text-slate-900 dark:text-white">
-              ${booking.price.toLocaleString()}
+              ${booking.totalPrice.toLocaleString()}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <a
+            <Link
               href={`/user-panel/bookings/${booking._id}`}
               className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-white/5"
             >
               Details
-            </a>
+            </Link>
             {canCancel && (
               <button className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
                 Cancel

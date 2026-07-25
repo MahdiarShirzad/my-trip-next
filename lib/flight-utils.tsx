@@ -8,6 +8,10 @@ export function formatFlightTime(iso: string) {
   });
 }
 
+export function isFlightExpired(flight: Flight) {
+  return new Date(flight.departureTime).getTime() < Date.now();
+}
+
 export function formatFlightDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
     weekday: "short",
@@ -25,8 +29,6 @@ export function getFlightDuration(departureTime: string, arrivalTime: string) {
   return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
 }
 
-// "From $X" price shown on the card — cheapest economy fare, falling back to
-// the cheapest seat overall if a flight happens to have no economy seats left.
 export function getStartingPrice(
   flight: Flight,
   seatClass: SeatClass = "economy",
@@ -52,8 +54,6 @@ const AVATAR_GRADIENTS = [
   "from-[#4f9dde] to-[#2f6fb0]",
 ];
 
-// Deterministic initials + gradient per airline name, so the same airline
-// always renders the same "logo" without needing an actual image asset.
 export function getAirlineAvatar(airline: string) {
   const initials = airline
     .split(" ")

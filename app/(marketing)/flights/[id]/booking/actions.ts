@@ -13,8 +13,6 @@ export interface ConfirmFlightBookingResult {
   message: string;
 }
 
-// TODO: wire this up to your real booking logic — e.g. verify the seat is
-// still free, write the booking to the DB, mark the seat as isBooked, etc.
 export async function confirmFlightBooking(
   input: ConfirmFlightBookingInput,
 ): Promise<ConfirmFlightBookingResult> {

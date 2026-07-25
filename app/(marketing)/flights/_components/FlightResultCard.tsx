@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link"; // پیشنهاد می‌شود از Link به جای a استفاده کنید
 import { Flight } from "../../../_components/flight-filters";
 
 function formatTime(iso: string) {
@@ -8,6 +12,14 @@ function formatTime(iso: string) {
   });
 }
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function formatDuration(minutes: number) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -15,14 +27,24 @@ function formatDuration(minutes: number) {
   return `${h}h ${m > 0 ? `${m}m` : ""}`.trim();
 }
 
+function isFlightExpired(departureTime: string) {
+  return new Date(departureTime).getTime() < Date.now();
+}
+
 interface FlightResultCardProps {
   flight: Flight;
 }
 
 export default function FlightResultCard({ flight }: FlightResultCardProps) {
-  const seatsLow = flight.seatsAvailable > 0 && flight.seatsAvailable <= 5;
+  const [expired, setExpired] = useState(false);
 
+  useEffect(() => {
+    setExpired(isFlightExpired(flight.departureTime));
+  }, [flight.departureTime]);
+
+  const seatsLow = flight.seatsAvailable > 0 && flight.seatsAvailable <= 5;
   const soldOut = flight.seatsAvailable === 0;
+  const unavailable = soldOut || expired;
 
   return (
     <article className="group relative flex flex-col transition-colors duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 sm:flex-row">
@@ -129,6 +151,10 @@ export default function FlightResultCard({ flight }: FlightResultCardProps) {
               <p className="mt-1 inline-flex rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-bold text-rose-500 dark:bg-rose-500/10 dark:text-rose-400">
                 Sold out
               </p>
+            ) : expired ? (
+              <p className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                Expired
+              </p>
             ) : seatsLow ? (
               <p className="mt-1 inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
                 {flight.seatsAvailable} seats left
@@ -140,18 +166,22 @@ export default function FlightResultCard({ flight }: FlightResultCardProps) {
             )}
           </div>
 
-          <a
-            href={soldOut ? undefined : `/flights/${flight._id}/booking`}
-            aria-disabled={soldOut}
+          <Link
+            href={unavailable ? "#" : `/flights/${flight._id}/booking`}
+            aria-disabled={unavailable}
             className={`group/btn flex shrink-0 items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold transition-all duration-200 ${
-              soldOut
+              unavailable
                 ? "pointer-events-none bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
                 : "bg-[#7167FF] text-white shadow-md shadow-[#7167FF]/20 hover:bg-[#5b50f0] hover:shadow-lg hover:shadow-[#7167FF]/35"
             }`}
           >
-            {soldOut ? "Unavailable" : "Select Flight"}
+            {soldOut
+              ? "Unavailable"
+              : expired
+                ? "Unavailable"
+                : "Select Flight"}
 
-            {!soldOut && (
+            {!unavailable && (
               <svg
                 aria-hidden
                 viewBox="0 0 24 24"
@@ -167,9 +197,24 @@ export default function FlightResultCard({ flight }: FlightResultCardProps) {
                 />
               </svg>
             )}
-          </a>
+          </Link>
         </div>
       </div>
+
+      {/* expired overlay */}
+      {expired && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-none bg-white/70 backdrop-blur-xs dark:bg-slate-900/70">
+          <span className="rounded-full bg-slate-800/90 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white dark:bg-slate-100/90 dark:text-slate-900">
+            Expired
+          </span>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+            {flight.origin} → {flight.destination}
+          </p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            {flight.flightNumber} · {formatDate(flight.departureTime)}
+          </p>
+        </div>
+      )}
     </article>
   );
 }

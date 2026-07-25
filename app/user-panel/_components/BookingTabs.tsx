@@ -1,7 +1,4 @@
 "use client";
-// app/user-panel/bookings/_components/BookingTabs.tsx
-// Client island: reads/writes a `?tab=` search param so filtering
-// happens on the server render, same pattern as the flights filters.
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
