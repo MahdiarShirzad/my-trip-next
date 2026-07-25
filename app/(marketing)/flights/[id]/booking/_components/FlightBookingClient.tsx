@@ -10,7 +10,7 @@ import BookingPersonalInfo, {
 import { FlightDetail } from "../flight-booking";
 import { confirmFlightBooking } from "../actions";
 import { useAuth } from "@/app/_components/AuthProvider";
-import { setNationalId } from "@/lib/services/apiAuth";
+import { setNationalId, updateProfile } from "@/lib/services/apiAuth";
 import { createFlightBooking } from "@/lib/services/apiBookings";
 import { ApiError } from "@/lib/utils/apiClient";
 import { confirmPayment, initiatePayment } from "@/lib/services/apiPayments";
@@ -59,6 +59,10 @@ export default function FlightBookingClient({
       if (!hasNationalId && values.nationalId) {
         const idRes = await setNationalId(values.nationalId);
         if (idRes?.data?.user) setUser(idRes.data.user);
+      }
+      if (values.address && values.address !== user.address) {
+        const profileRes = await updateProfile({ address: values.address });
+        if (profileRes?.data?.user) setUser(profileRes.data.user);
       }
 
       const bookingRes = await createFlightBooking({
@@ -124,7 +128,7 @@ export default function FlightBookingClient({
             fullName: user.name ?? "",
             email: user.email,
             phone: user.phone ?? "",
-            address: "",
+            address: user.address ?? "",
             nationalId: user.nationalId ?? "",
           }}
           disabled={!selectedSeat}

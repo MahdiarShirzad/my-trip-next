@@ -28,6 +28,7 @@ export interface User {
   email: string;
   name?: string;
   phone?: string;
+  address?: string;
   nationalId?: string;
   role: "user" | "admin";
 }
@@ -42,6 +43,7 @@ export interface MeResponse {
 export interface UpdateProfilePayload {
   name?: string;
   phone?: string;
+  address?: string;
 }
 
 export async function login(data: LoginPayload) {

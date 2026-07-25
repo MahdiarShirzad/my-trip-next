@@ -1,5 +1,4 @@
 import type { Booking } from "@/lib/services/apiBookings";
-import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 
 function formatDateTime(iso?: string) {
@@ -22,15 +21,23 @@ function formatDate(iso?: string) {
   });
 }
 
-const CANCELLABLE_STATUSES = new Set(["confirmed", "pending"]);
+function shortRef(id: string) {
+  return id.slice(-6).toUpperCase();
+}
 
 export default function BookingCard({ booking }: { booking: Booking }) {
-  const canCancel = CANCELLABLE_STATUSES.has(booking.status);
   const isFlight = booking.bookingType === "flight";
 
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-colors hover:border-[#7167FF]/40 dark:border-slate-800 dark:bg-[#111827]">
-      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <article className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:-translate-y-0.5 hover:border-[#7167FF]/40 hover:shadow-lg hover:shadow-[#7167FF]/5 dark:border-slate-800 dark:bg-[#111827]">
+      {/* Accent rail — signals booking type at a glance without repeating the icon color everywhere */}
+      <div
+        className={`absolute inset-y-0 left-0 w-1 ${
+          isFlight ? "bg-[#7167FF]" : "bg-sky-500"
+        }`}
+      />
+
+      <div className="flex flex-col gap-4 p-5 pl-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
           <div
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
@@ -105,19 +112,10 @@ export default function BookingCard({ booking }: { booking: Booking }) {
               ${booking.totalPrice.toLocaleString()}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/user-panel/bookings/${booking._id}`}
-              className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-white/5"
-            >
-              Details
-            </Link>
-            {canCancel && (
-              <button className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
-                Cancel
-              </button>
-            )}
-          </div>
+
+          <span className="rounded-full bg-slate-100 px-3 py-1 font-mono text-[11px] tracking-wide text-slate-400 dark:bg-white/5 dark:text-slate-500">
+            #{shortRef(booking._id)}
+          </span>
         </div>
       </div>
     </article>

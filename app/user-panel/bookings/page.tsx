@@ -28,7 +28,7 @@ export default function BookingsPage() {
         const data = await getMyBookings();
         if (!ignore) setAllBookings(data);
       } catch {
-        if (!ignore) setError("دریافت رزروها با خطا مواجه شد");
+        if (!ignore) setError("error fetching reservations");
       } finally {
         if (!ignore) setIsLoading(false);
       }

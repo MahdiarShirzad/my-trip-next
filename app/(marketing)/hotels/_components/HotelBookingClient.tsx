@@ -12,7 +12,7 @@ import RoomMap from "./RoomMap";
 import HotelBookingSummary from "./HotelBookingSummary";
 import NightsCounter from "./NightsCounter";
 import { useAuth } from "@/app/_components/AuthProvider";
-import { setNationalId } from "@/lib/services/apiAuth";
+import { setNationalId, updateProfile } from "@/lib/services/apiAuth";
 import { createHotelBooking } from "@/lib/services/apiBookings";
 import { initiatePayment, confirmPayment } from "@/lib/services/apiPayments";
 import { ApiError } from "@/lib/utils/apiClient";
@@ -57,6 +57,10 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
       if (!hasNationalId && values.nationalId) {
         const idRes = await setNationalId(values.nationalId);
         if (idRes?.data?.user) setUser(idRes.data.user);
+      }
+      if (values.address && values.address !== user.address) {
+        const profileRes = await updateProfile({ address: values.address });
+        if (profileRes?.data?.user) setUser(profileRes.data.user);
       }
 
       const checkInDate = new Date();
@@ -134,7 +138,7 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
             fullName: user.name ?? "",
             email: user.email,
             phone: user.phone ?? "",
-            address: "",
+            address: user.address ?? "",
             nationalId: user.nationalId ?? "",
           }}
           disabled={!selectedRoom}
