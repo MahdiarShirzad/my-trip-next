@@ -7,6 +7,7 @@ import FlightBookingSummary from "@/app/(marketing)/flights/[id]/booking/_compon
 import BookingPersonalInfo, {
   BookingInfoValues,
 } from "@/app/_components/BookingPersonalInfo";
+import LoginToBookPrompt from "@/app/_components/LoginToBookPrompt";
 import { FlightDetail } from "../flight-booking";
 import { confirmFlightBooking } from "../actions";
 import { useAuth } from "@/app/_components/AuthProvider";
@@ -45,11 +46,11 @@ export default function FlightBookingClient({
     [flight, selectedSeatNumber],
   );
 
-  if (!flight || !user) {
+  if (!flight) {
     return null;
   }
 
-  const hasNationalId = Boolean(user.nationalId);
+  const hasNationalId = Boolean(user?.nationalId);
 
   function handleSelectSeat(seatNumber: string) {
     setSelectedSeatNumber((current) =>
@@ -136,19 +137,23 @@ export default function FlightBookingClient({
           </div>
         </div>
 
-        <BookingPersonalInfo
-          initialValues={{
-            fullName: user.name ?? "",
-            email: user.email,
-            phone: user.phone ?? "",
-            address: user.address ?? "",
-            nationalId: user.nationalId ?? "",
-          }}
-          disabled={!selectedSeat}
-          isSubmitting={isSubmitting}
-          nationalIdLocked={hasNationalId}
-          onSubmit={handleSubmit}
-        />
+        {user ? (
+          <BookingPersonalInfo
+            initialValues={{
+              fullName: user.name ?? "",
+              email: user.email,
+              phone: user.phone ?? "",
+              address: user.address ?? "",
+              nationalId: user.nationalId ?? "",
+            }}
+            disabled={!selectedSeat}
+            isSubmitting={isSubmitting}
+            nationalIdLocked={hasNationalId}
+            onSubmit={handleSubmit}
+          />
+        ) : (
+          <LoginToBookPrompt />
+        )}
       </div>
 
       <div className="w-2/5 max-lg:w-full">

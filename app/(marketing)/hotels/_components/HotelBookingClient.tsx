@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import BookingPersonalInfo, {
   BookingInfoValues,
 } from "@/app/_components/BookingPersonalInfo";
+import LoginToBookPrompt from "@/app/_components/LoginToBookPrompt";
 import { Hotel, Room } from "@/types/Hotel";
 import RoomMap from "./RoomMap";
 import HotelBookingSummary from "./HotelBookingSummary";
@@ -38,9 +39,9 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
     [hotel?.rooms, selectedRoomNumber],
   );
 
-  if (!user || !hotel) return null;
+  if (!hotel) return null;
 
-  const hasNationalId = Boolean(user.nationalId);
+  const hasNationalId = Boolean(user?.nationalId);
 
   function handleSelectRoom(roomNumber: string) {
     setSelectedRoomNumber((current) =>
@@ -137,19 +138,23 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
           <NightsCounter nights={nights} onChange={setNights} />
         </div>
 
-        <BookingPersonalInfo
-          initialValues={{
-            fullName: user.name ?? "",
-            email: user.email,
-            phone: user.phone ?? "",
-            address: user.address ?? "",
-            nationalId: user.nationalId ?? "",
-          }}
-          disabled={!selectedRoom}
-          isSubmitting={isSubmitting}
-          nationalIdLocked={hasNationalId}
-          onSubmit={handleSubmit}
-        />
+        {user ? (
+          <BookingPersonalInfo
+            initialValues={{
+              fullName: user.name ?? "",
+              email: user.email,
+              phone: user.phone ?? "",
+              address: user.address ?? "",
+              nationalId: user.nationalId ?? "",
+            }}
+            disabled={!selectedRoom}
+            isSubmitting={isSubmitting}
+            nationalIdLocked={hasNationalId}
+            onSubmit={handleSubmit}
+          />
+        ) : (
+          <LoginToBookPrompt />
+        )}
       </div>
 
       <div className="w-2/5 max-lg:w-full">
