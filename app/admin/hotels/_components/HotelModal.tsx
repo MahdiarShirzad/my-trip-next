@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import Modal from "../../_components/Modal";
 import RoomsEditor from "./RoomsEditor";
-import { api, uploadImage } from "../../_lib/api";
 import { Hotel, Room } from "../../_lib/types";
+import { useSaveHotel, uploadImage } from "../../_lib/queries/useHotels";
 
 const EMPTY_FORM = {
   name: "",
@@ -42,6 +42,7 @@ export default function HotelModal({
   hotel: Hotel | null;
 }) {
   const isEdit = Boolean(hotel);
+  const saveHotel = useSaveHotel();
   const [form, setForm] = useState(EMPTY_FORM);
   const [images, setImages] = useState<string[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -94,7 +95,6 @@ export default function HotelModal({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSaving(true);
     setError(null);
 
     try {
@@ -118,17 +118,10 @@ export default function HotelModal({
         rooms,
       };
 
-      if (isEdit && hotel) {
-        await api.patch(`/hotels/${hotel._id}`, payload);
-      } else {
-        await api.post("/hotels", payload);
-      }
-      onSaved();
+      await saveHotel.mutateAsync({ id: hotel?._id, payload });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save hotel");
-    } finally {
-      setSaving(false);
     }
   }
 

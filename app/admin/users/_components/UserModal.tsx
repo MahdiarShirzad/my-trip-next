@@ -1,92 +1,39 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState } from "react";
 import Modal from "../../_components/Modal";
 import Badge from "../../_components/Badge";
-import { api, buildQuery } from "../../_lib/api";
-import { AdminUser, Booking, Paginated, Role } from "../../_lib/types";
+import { useUpdateUserRole } from "../../_lib/queries/useUsers";
+import { useUserBookings } from "../../_lib/queries/useBookings";
+import { AdminUser, Role } from "../../_lib/types";
 
 interface UserModalProps {
   open: boolean;
   onClose: () => void;
-  onUpdated: () => void;
   user: AdminUser | null;
 }
 
-export default function UserModal({
-  open,
-  onClose,
-  onUpdated,
-  user,
-}: UserModalProps) {
-  const [role, setRole] = useState<Role>("user");
-  const [isActive, setIsActive] = useState(true);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [bookingsLoading, setBookingsLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+export default function UserModal({ open, onClose, user }: UserModalProps) {
+  const [role, setRole] = useState<Role>(user?.role ?? "user");
   const [error, setError] = useState<string | null>(null);
 
-  // Sync state with selected user prop
-  useEffect(() => {
-    if (!open || !user) return;
+  const updateRole = useUpdateUserRole();
+  const { data: bookings = [], isLoading: bookingsLoading } = useUserBookings(
+    open ? user?._id : undefined,
+  );
 
-    setRole(user.role);
-    setIsActive(user.isActive ?? true);
-    setError(null);
-
-    const controller = new AbortController();
-    setBookingsLoading(true);
-
-    api
-      .get<Paginated<Booking>>(
-        `/bookings${buildQuery({
-          user: user._id,
-          limit: 20,
-          sort: "-createdAt",
-        })}`,
-        { signal: controller.signal },
-      )
-      .then((res) => {
-        if (!controller.signal.aborted) {
-          setBookings(res.data);
-        }
-      })
-      .catch((err) => {
-        if (err?.name !== "CanceledError" && !controller.signal.aborted) {
-          setBookings([]);
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setBookingsLoading(false);
-        }
-      });
-
-    return () => {
-      controller.abort();
-    };
-  }, [open, user]);
-
-  // Early exit if user isn't present
   if (!user) return null;
 
-  // Check if initial form values have changed
-  const isDirty = role !== user.role || isActive !== (user.isActive ?? true);
+  const isDirty = role !== user.role;
 
   async function handleSave() {
-    if (!user || saving) return;
-
-    setSaving(true);
+    if (!user) return;
     setError(null);
-
     try {
-      await api.patch(`/users/${user._id}`, { role, isActive });
-      onUpdated();
+      await updateRole.mutateAsync({ id: user._id, role });
       onClose();
     } catch {
-      setError("Failed to update user profile");
-    } finally {
-      setSaving(false);
+      setError("Failed to update user role");
     }
   }
 
@@ -96,7 +43,6 @@ export default function UserModal({
   return (
     <Modal open={open} onClose={onClose} title={`Profile: ${user.name}`}>
       <div className="space-y-6">
-        {/* User Details */}
         <section className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
           <div className={rowStyle}>
             <span className="text-slate-500 dark:text-slate-400">Email</span>
@@ -128,10 +74,9 @@ export default function UserModal({
           </div>
         </section>
 
-        {/* Role & Account Status Controls */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
-            Role & Account Status
+            Role
           </h3>
 
           {error && (
@@ -150,29 +95,18 @@ export default function UserModal({
               <option value="admin">Admin</option>
             </select>
 
-            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="rounded border-slate-300 text-[#7167FF] focus:ring-[#7167FF]"
-              />
-              Active Account
-            </label>
-
             <button
               type="button"
               onClick={handleSave}
-              disabled={saving || !isDirty}
+              disabled={updateRole.isPending || !isDirty}
               className="ml-auto px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-opacity"
               style={{ backgroundColor: "#7167FF" }}
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {updateRole.isPending ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </section>
 
-        {/* User Bookings Section */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             User Bookings

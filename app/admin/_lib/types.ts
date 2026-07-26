@@ -1,6 +1,3 @@
-// Types mirror the backend Mongoose models (User, Flight, Hotel, Booking, Payment)
-// Trimmed to what the admin UI actually renders/edits.
-
 export type Role = "user" | "admin";
 
 export interface AdminUser {
@@ -10,7 +7,6 @@ export interface AdminUser {
   phone: string;
   nationalId: string;
   role: Role;
-  isActive?: boolean;
   createdAt: string;
 }
 
@@ -76,7 +72,12 @@ export interface Booking {
   bookingType: BookingType;
   flightId?: Flight | string;
   hotelId?: Hotel | string;
-  passengers?: { name: string; email: string; phone: string; seatNumber?: string }[];
+  passengers?: {
+    name: string;
+    email: string;
+    phone: string;
+    seatNumber?: string;
+  }[];
   guests?: { name: string; lastName: string; nationalId: string }[];
   checkInDate?: string;
   checkOutDate?: string;

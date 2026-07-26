@@ -1,139 +1,46 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { Plus, Pencil, Trash2, Plane } from "lucide-react";
 import SearchInput from "../_components/SearchInput";
 import Pagination from "../_components/Pagination";
 import Badge from "../_components/Badge";
 import ConfirmDialog from "../_components/ConfirmDialog";
 import FlightModal from "./_components/FlightModal";
-import { api, buildQuery } from "../_lib/api";
-import { Flight, Paginated } from "../_lib/types";
+import { useDeleteFlight, useFlights } from "../_lib/queries/useFlights";
+import { useDebouncedValue } from "../_lib/useDebouncedValue";
+import { Flight } from "../_lib/types";
 
 const LIMIT = 10;
 
-const MOCK_FLIGHTS: Flight[] = [
-  {
-    _id: "1",
-    airline: "Mahan Air",
-    flightNumber: "W5-081",
-    origin: { city: "Tehran", code: "IKA" },
-    destination: { city: "Istanbul", code: "IST" },
-    departureTime: new Date().toISOString(),
-    availableSeats: 45,
-    totalSeats: 180,
-    status: "SCHEDULED" as any,
-  },
-  {
-    _id: "2",
-    airline: "Iran Air",
-    flightNumber: "IR-721",
-    origin: { city: "Tehran", code: "THR" },
-    destination: { city: "Mashhad", code: "MHD" },
-    departureTime: new Date(Date.now() + 86400000).toISOString(),
-    availableSeats: 12,
-    totalSeats: 160,
-    status: "DELAYED" as any,
-  },
-  {
-    _id: "3",
-    airline: "Emirates",
-    flightNumber: "EK-972",
-    origin: { city: "Dubai", code: "DXB" },
-    destination: { city: "Tehran", code: "IKA" },
-    departureTime: new Date(Date.now() + 172800000).toISOString(),
-    availableSeats: 0,
-    totalSeats: 250,
-    status: "CANCELLED" as any,
-  },
-];
-
 export default function FlightsPage() {
-  const [flights, setFlights] = useState<Flight[]>(MOCK_FLIGHTS);
-  const [total, setTotal] = useState(MOCK_FLIGHTS.length);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(search);
+
+  const { data, isLoading, isError } = useFlights({
+    page,
+    limit: LIMIT,
+    search: debouncedSearch,
+  });
+  const deleteFlight = useDeleteFlight();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Flight | null>(null);
   const [deleting, setDeleting] = useState<Flight | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const query = buildQuery({
-        page,
-        limit: LIMIT,
-        sort: "-departureTime",
-        keyword: search || undefined,
-      });
-      const res = await api.get<any>(`/flights${query}`);
-
-      const dataArray = Array.isArray(res)
-        ? res
-        : Array.isArray(res?.data)
-          ? res.data
-          : Array.isArray(res?.flights)
-            ? res.flights
-            : null;
-
-      if (dataArray && dataArray.length > 0) {
-        setFlights(dataArray);
-        setTotal(res?.total ?? dataArray.length);
-      } else {
-        const filtered = MOCK_FLIGHTS.filter((f) =>
-          search
-            ? f.airline.toLowerCase().includes(search.toLowerCase()) ||
-              f.flightNumber.toLowerCase().includes(search.toLowerCase()) ||
-              f.origin?.city?.toLowerCase().includes(search.toLowerCase()) ||
-              f.destination?.city?.toLowerCase().includes(search.toLowerCase())
-            : true,
-        );
-        setFlights(filtered);
-        setTotal(filtered.length);
-      }
-    } catch {
-      const filtered = MOCK_FLIGHTS.filter((f) =>
-        search
-          ? f.airline.toLowerCase().includes(search.toLowerCase()) ||
-            f.flightNumber.toLowerCase().includes(search.toLowerCase()) ||
-            f.origin?.city?.toLowerCase().includes(search.toLowerCase()) ||
-            f.destination?.city?.toLowerCase().includes(search.toLowerCase())
-          : true,
-      );
-      setFlights(filtered);
-      setTotal(filtered.length);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const flights = data?.flights ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(data?.totalPages ?? 1, 1);
 
   async function handleDelete() {
     if (!deleting) return;
-    setDeleteLoading(true);
     try {
-      await api.delete(`/flights/${deleting._id}`);
-    } catch {
-      setFlights((prev) =>
-        Array.isArray(prev) ? prev.filter((f) => f._id !== deleting._id) : [],
-      );
-      setTotal((prev) => Math.max(0, prev - 1));
+      await deleteFlight.mutateAsync(deleting._id);
     } finally {
       setDeleting(null);
-      setDeleteLoading(false);
     }
   }
-
-  const safeFlights = Array.isArray(flights) ? flights : [];
-  const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
 
   return (
     <div className="space-y-6">
@@ -158,9 +65,9 @@ export default function FlightsPage() {
         </button>
       </div>
 
-      {error && (
+      {isError && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
-          {error}
+          Failed to load flights. Please try again.
         </div>
       )}
 
@@ -178,7 +85,7 @@ export default function FlightsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {loading ? (
+              {isLoading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex justify-center">
@@ -186,7 +93,7 @@ export default function FlightsPage() {
                     </div>
                   </td>
                 </tr>
-              ) : safeFlights.length === 0 ? (
+              ) : flights.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -197,7 +104,7 @@ export default function FlightsPage() {
                   </td>
                 </tr>
               ) : (
-                safeFlights.map((f) => (
+                flights.map((f) => (
                   <tr
                     key={f._id}
                     className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
@@ -261,7 +168,6 @@ export default function FlightsPage() {
         open={modalOpen}
         flight={editing}
         onClose={() => setModalOpen(false)}
-        onSaved={load}
       />
 
       <ConfirmDialog
@@ -269,7 +175,7 @@ export default function FlightsPage() {
         title="Delete Flight"
         description={`Are you sure you want to delete flight ${deleting?.flightNumber ?? ""}? This action cannot be undone.`}
         confirmLabel="Delete Flight"
-        loading={deleteLoading}
+        loading={deleteFlight.isPending}
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />

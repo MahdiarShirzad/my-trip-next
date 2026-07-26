@@ -1,172 +1,45 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  BuildingIcon,
-  Star,
-  MapPin,
-  RefreshCw,
-} from "lucide-react";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, BuildingIcon, Star, MapPin } from "lucide-react";
 import SearchInput from "../_components/SearchInput";
 import Pagination from "../_components/Pagination";
 import ConfirmDialog from "../_components/ConfirmDialog";
 import HotelModal from "./_components/HotelModal";
-import { api, buildQuery } from "../_lib/api";
-import { Hotel, Paginated } from "../_lib/types";
+import { useDeleteHotel, useHotels } from "../_lib/queries/useHotels";
+import { useDebouncedValue } from "../_lib/useDebouncedValue";
+import { Hotel } from "../_lib/types";
 
 const LIMIT = 10;
 
-const MOCK_HOTELS: Hotel[] = [
-  {
-    _id: "1",
-    name: "Grand Hyatt Dubai",
-    location: { city: "Dubai" },
-    starRating: 5,
-    availableRooms: 12,
-    totalRooms: 50,
-    minPrice: 250,
-    maxPrice: 600,
-    images: [
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80",
-    ],
-  },
-  {
-    _id: "2",
-    name: "Ritz-Carlton Paris",
-    location: { city: "Paris" },
-    starRating: 5,
-    availableRooms: 4,
-    totalRooms: 30,
-    minPrice: 750,
-    maxPrice: 1800,
-    images: [
-      "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=500&q=80",
-    ],
-  },
-  {
-    _id: "3",
-    name: "Tokyo Bay Hilton",
-    location: { city: "Tokyo" },
-    starRating: 4,
-    availableRooms: 18,
-    totalRooms: 80,
-    minPrice: 180,
-    maxPrice: 420,
-    images: [
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&q=80",
-    ],
-  },
-  {
-    _id: "4",
-    name: "Marina Bay Sands",
-    location: { city: "Singapore" },
-    starRating: 5,
-    availableRooms: 8,
-    totalRooms: 100,
-    minPrice: 550,
-    maxPrice: 1200,
-    images: [
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500&q=80",
-    ],
-  },
-  {
-    _id: "5",
-    name: "The Plaza New York",
-    location: { city: "New York" },
-    starRating: 5,
-    availableRooms: 2,
-    totalRooms: 40,
-    minPrice: 890,
-    maxPrice: 2100,
-    images: [
-      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500&q=80",
-    ],
-  },
-];
-
 export default function HotelsPage() {
-  const [hotels, setHotels] = useState<Hotel[]>(MOCK_HOTELS);
-  const [total, setTotal] = useState(MOCK_HOTELS.length);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(search);
+
+  const { data, isLoading, isError } = useHotels({
+    page,
+    limit: LIMIT,
+    search: debouncedSearch,
+  });
+  const deleteHotel = useDeleteHotel();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Hotel | null>(null);
   const [deleting, setDeleting] = useState<Hotel | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const query = buildQuery({
-        page,
-        limit: LIMIT,
-        keyword: search || undefined,
-      });
-      const res = await api.get<Paginated<Hotel> | Hotel[]>(`/hotels${query}`);
-
-      const hotelList = Array.isArray(res?.data)
-        ? res.data
-        : Array.isArray(res)
-          ? res
-          : [];
-
-      if (hotelList.length > 0) {
-        setHotels(hotelList);
-        setTotal(res?.total ?? hotelList.length);
-      } else {
-        // Fallback to client-filtered mock data if API returns empty
-        const filteredMock = MOCK_HOTELS.filter(
-          (h) =>
-            h.name.toLowerCase().includes(search.toLowerCase()) ||
-            h.location.city.toLowerCase().includes(search.toLowerCase()),
-        );
-        setHotels(filteredMock);
-        setTotal(filteredMock.length);
-      }
-    } catch {
-      // Fallback to client-filtered mock data on fetch error
-      const filteredMock = MOCK_HOTELS.filter(
-        (h) =>
-          h.name.toLowerCase().includes(search.toLowerCase()) ||
-          h.location.city.toLowerCase().includes(search.toLowerCase()),
-      );
-      setHotels(filteredMock);
-      setTotal(filteredMock.length);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const hotels = data?.hotels ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(data?.totalPages ?? 1, 1);
 
   async function handleDelete() {
     if (!deleting) return;
-    setDeleteLoading(true);
     try {
-      await api.delete(`/hotels/${deleting._id}`);
-      setDeleting(null);
-      load();
-    } catch {
-      // Local deletion fallback for mock state
-      setHotels((prev) => prev.filter((h) => h._id !== deleting._id));
-      setTotal((prev) => prev - 1);
-      setDeleting(null);
+      await deleteHotel.mutateAsync(deleting._id);
     } finally {
-      setDeleteLoading(false);
+      setDeleting(null);
     }
   }
-
-  const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
-  const safeHotels = Array.isArray(hotels) ? hotels : [];
 
   return (
     <div className="space-y-6 p-2 sm:p-4">
@@ -194,15 +67,9 @@ export default function HotelsPage() {
         </button>
       </div>
 
-      {error && (
+      {isError && (
         <div className="flex items-center justify-between rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-sm px-4 py-3 shadow-sm">
-          <span>{error}</span>
-          <button
-            onClick={load}
-            className="inline-flex items-center gap-1.5 font-medium hover:underline text-xs"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> Retry
-          </button>
+          <span>Failed to load hotels. Please try again.</span>
         </div>
       )}
 
@@ -220,7 +87,7 @@ export default function HotelsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-              {loading ? (
+              {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-5 py-4">
@@ -246,7 +113,7 @@ export default function HotelsPage() {
                     </td>
                   </tr>
                 ))
-              ) : safeHotels.length === 0 ? (
+              ) : hotels.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -263,7 +130,7 @@ export default function HotelsPage() {
                   </td>
                 </tr>
               ) : (
-                safeHotels.map((h) => (
+                hotels.map((h) => (
                   <tr
                     key={h._id}
                     className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group"
@@ -358,7 +225,6 @@ export default function HotelsPage() {
         open={modalOpen}
         hotel={editing}
         onClose={() => setModalOpen(false)}
-        onSaved={load}
       />
 
       <ConfirmDialog
@@ -366,7 +232,7 @@ export default function HotelsPage() {
         title="Delete Hotel"
         description={`Are you sure you want to delete hotel "${deleting?.name ?? ""}"? This action cannot be undone.`}
         confirmLabel="Delete Hotel"
-        loading={deleteLoading}
+        loading={deleteHotel.isPending}
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />

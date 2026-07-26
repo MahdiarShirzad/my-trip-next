@@ -1,95 +1,48 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useState } from "react";
 import { Users as UsersIcon, ChevronRight } from "lucide-react";
 import SearchInput from "../_components/SearchInput";
 import Pagination from "../_components/Pagination";
 import Badge from "../_components/Badge";
 import UserModal from "./_components/UserModal";
-import { api, buildQuery } from "../_lib/api";
-import { AdminUser, Paginated } from "../_lib/types";
+import { useUsers } from "../_lib/queries/useUsers";
+import { useDebouncedValue } from "../_lib/useDebouncedValue";
+import { AdminUser } from "../_lib/types";
 
 const LIMIT = 10;
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(search);
+
+  const { data, isLoading, isError } = useUsers({
+    page,
+    limit: LIMIT,
+    search: debouncedSearch,
+  });
+
   const [selected, setSelected] = useState<AdminUser | null>(null);
 
-  // Simple debounce for search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  // Fetch users with AbortController handling
-  const load = useCallback(
-    async (signal?: AbortSignal) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const query = buildQuery({
-          page,
-          limit: LIMIT,
-          keyword: debouncedSearch || undefined,
-        });
-
-        const res = await api.get<Paginated<AdminUser>>(`/users${query}`, {
-          signal,
-        });
-
-        if (!signal?.aborted) {
-          setUsers(res.data);
-          setTotal(res.total);
-        }
-      } catch (err: any) {
-        if (err?.name !== "CanceledError" && !signal?.aborted) {
-          setError("Failed to fetch users list");
-        }
-      } finally {
-        if (!signal?.aborted) {
-          setLoading(false);
-        }
-      }
-    },
-    [page, debouncedSearch],
-  );
-
-  useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal);
-
-    return () => {
-      controller.abort();
-    };
-  }, [load]);
-
-  const handleSearchChange = (value: string) => {
-    setPage(1);
-    setSearch(value);
-  };
-
+  const users = data?.users ?? [];
+  const total = data?.total ?? 0;
   const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
 
   return (
     <div className="space-y-4">
       <SearchInput
         value={search}
-        onChange={handleSearchChange}
+        onChange={(v) => {
+          setPage(1);
+          setSearch(v);
+        }}
         placeholder="Search by name or email..."
       />
 
-      {error && (
+      {isError && (
         <div className="rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 text-sm px-4 py-3">
-          {error}
+          Failed to fetch users list
         </div>
       )}
 
@@ -102,15 +55,14 @@ export default function UsersPage() {
                 <th className="text-left font-medium px-4 py-3">Email</th>
                 <th className="text-left font-medium px-4 py-3">Phone</th>
                 <th className="text-left font-medium px-4 py-3">Role</th>
-                <th className="text-left font-medium px-4 py-3">Status</th>
                 <th className="text-left font-medium px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {isLoading ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="px-4 py-10 text-center text-slate-400"
                   >
                     Loading...
@@ -119,7 +71,7 @@ export default function UsersPage() {
               ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="px-4 py-10 text-center text-slate-400"
                   >
                     <UsersIcon className="w-6 h-6 mx-auto mb-2 opacity-50" />
@@ -145,11 +97,6 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <Badge value={u.role} />
                     </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        value={u.isActive === false ? "disabled" : "active"}
-                      />
-                    </td>
                     <td className="px-4 py-3 text-right">
                       <ChevronRight className="w-4 h-4 text-slate-400 inline" />
                     </td>
@@ -172,7 +119,6 @@ export default function UsersPage() {
         open={Boolean(selected)}
         user={selected}
         onClose={() => setSelected(null)}
-        onUpdated={() => load()}
       />
     </div>
   );

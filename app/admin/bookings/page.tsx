@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { Eye, CalendarCheck } from "lucide-react";
 import Pagination from "../_components/Pagination";
 import Badge from "../_components/Badge";
 import BookingDetailModal from "./_components/BookingDetailModal";
-import { api, buildQuery } from "../_lib/api";
-import { Booking, Paginated } from "../_lib/types";
+import { useBookings } from "../_lib/queries/useBookings";
+import { Booking } from "../_lib/types";
 
 const LIMIT = 10;
 const SELECT_CLASS =
@@ -14,12 +14,7 @@ const SELECT_CLASS =
 const FOCUS_STYLE = { "--tw-ring-color": "#7167FF" } as React.CSSProperties;
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [type, setType] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [from, setFrom] = useState("");
@@ -27,42 +22,21 @@ export default function BookingsPage() {
 
   const [selected, setSelected] = useState<Booking | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Adjust end-of-day timestamp for the 'to' filter to cover the full date
-      const formattedTo = to ? `${to}T23:59:59.999Z` : undefined;
+  const { data, isLoading, isError } = useBookings({
+    page,
+    limit: LIMIT,
+    bookingType: type,
+    status,
+    from,
+    to,
+  });
 
-      const query = buildQuery({
-        page,
-        limit: LIMIT,
-        sort: "-createdAt",
-        bookingType: type || undefined,
-        status: status || undefined,
-        "createdAt[gte]": from || undefined,
-        "createdAt[lte]": formattedTo,
-      });
-
-      const res = await api.get<Paginated<Booking>>(`/bookings${query}`);
-      setBookings(res.data);
-      setTotal(res.total);
-    } catch {
-      setError("Failed to fetch bookings list");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, type, status, from, to]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
+  const bookings = data?.bookings ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(data?.totalPages ?? 1, 1);
 
   return (
     <div className="space-y-4">
-      {/* Filters Bar */}
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={type}
@@ -117,13 +91,12 @@ export default function BookingsPage() {
         />
       </div>
 
-      {error && (
+      {isError && (
         <div className="rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 text-sm px-4 py-3">
-          {error}
+          Failed to fetch bookings list
         </div>
       )}
 
-      {/* Table Container */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -145,7 +118,7 @@ export default function BookingsPage() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {isLoading ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -220,7 +193,6 @@ export default function BookingsPage() {
         open={Boolean(selected)}
         booking={selected}
         onClose={() => setSelected(null)}
-        onUpdated={load}
       />
     </div>
   );

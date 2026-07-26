@@ -27,15 +27,24 @@ export default function UserMenu() {
   const initial =
     user.name?.trim()?.[0]?.toUpperCase() ?? user.email[0].toUpperCase();
 
+  const menuItemClass =
+    "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-slate-800";
+
   async function handleLogout() {
-    await logoutRequest();
-    setUser(null);
-    setIsOpen(false);
-    router.push("/");
+    try {
+      await logoutRequest();
+    } catch (err) {
+      console.log("logout error:", err);
+    } finally {
+      setUser(null);
+      setIsOpen(false);
+      router.push("/");
+    }
   }
 
   return (
     <div className="relative" ref={menuRef}>
+      {/* Trigger */}
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
@@ -44,11 +53,15 @@ export default function UserMenu() {
         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#7167FF] text-white text-sm font-bold">
           {initial}
         </span>
+
         <span className="hidden sm:inline text-sm font-semibold max-w-[120px] truncate">
           {user.name || user.email}
         </span>
+
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -62,8 +75,10 @@ export default function UserMenu() {
         </svg>
       </button>
 
+      {/* Dropdown */}
       {isOpen && (
         <div className="absolute right-0 mt-3 w-56 rounded-2xl border-2 border-slate-200 bg-white p-1.5 shadow-lg shadow-black/5 dark:border-slate-700 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+          {/* User Info */}
           <div className="mb-1 border-b border-slate-100 px-3 py-2.5 dark:border-slate-800">
             <p className="truncate text-sm font-bold">{user.name || "User"}</p>
             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
@@ -71,24 +86,74 @@ export default function UserMenu() {
             </p>
           </div>
 
-          <Link
-            href={user.role === "admin" ? "/admin" : "/user-panel/account"}
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            {user.role === "admin" ? "Admin Panel" : "Account"}
-          </Link>
+          {/* ===== ADMIN MENU ===== */}
+          {user.role === "admin" ? (
+            <>
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Dashboard
+              </Link>
 
-          {user.role !== "admin" && (
-            <Link
-              href="/user-panel/bookings"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              My Bookings
-            </Link>
+              <Link
+                href="/admin/users"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Users
+              </Link>
+
+              <Link
+                href="/admin/flights"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Flights
+              </Link>
+
+              <Link
+                href="/admin/hotels"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Hotels
+              </Link>
+
+              <Link
+                href="/admin/bookings"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Bookings
+              </Link>
+            </>
+          ) : (
+            /* ===== USER MENU ===== */
+            <>
+              <Link
+                href="/user-panel/account"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                Account
+              </Link>
+
+              <Link
+                href="/user-panel/bookings"
+                onClick={() => setIsOpen(false)}
+                className={menuItemClass}
+              >
+                My Bookings
+              </Link>
+            </>
           )}
 
+          {/* Divider */}
+          <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+          {/* Logout */}
           <button
             type="button"
             onClick={handleLogout}

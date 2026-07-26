@@ -5,6 +5,7 @@ import Modal from "../../_components/Modal";
 import Badge from "../../_components/Badge";
 import { api } from "../../_lib/api";
 import { Booking, BookingStatus, Flight, Hotel } from "../../_lib/types";
+import { useUpdateBookingStatus } from "../../_lib/queries/useBookings";
 
 const STATUS_OPTIONS: BookingStatus[] = [
   "pending",
@@ -27,19 +28,17 @@ const FOCUS_STYLE = { "--tw-ring-color": "#7167FF" } as React.CSSProperties;
 interface BookingDetailModalProps {
   open: boolean;
   onClose: () => void;
-  onUpdated: () => void;
   booking: Booking | null;
 }
 
 export default function BookingDetailModal({
   open,
   onClose,
-  onUpdated,
   booking,
 }: BookingDetailModalProps) {
   const [status, setStatus] = useState<BookingStatus>("pending");
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const updateStatus = useUpdateBookingStatus();
 
   useEffect(() => {
     if (booking) {
@@ -62,18 +61,12 @@ export default function BookingDetailModal({
 
   async function handleStatusSave() {
     if (!booking) return;
-
-    setSaving(true);
     setError(null);
-
     try {
-      await api.patch(`/bookings/${booking._id}`, { status });
-      onUpdated();
+      await updateStatus.mutateAsync({ id: booking._id, status });
       onClose();
     } catch {
       setError("Failed to update booking status");
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -254,11 +247,11 @@ export default function BookingDetailModal({
             </select>
             <button
               onClick={handleStatusSave}
-              disabled={saving || status === booking.status}
+              disabled={updateStatus.isPending || status === booking.status}
               className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity disabled:opacity-50"
               style={{ backgroundColor: "#7167FF" }}
             >
-              {saving ? "Saving..." : "Save Status"}
+              {updateStatus.isPending ? "Saving..." : "Save Status"}
             </button>
           </div>
         </section>

@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent, CSSProperties } from "react";
 import Modal from "../../_components/Modal";
 import { api } from "../../_lib/api";
 import { Flight, Seat } from "../../_lib/types";
+import { useSaveFlight } from "../../_lib/queries/useFlights";
 
 type SeatClass = "economy" | "business" | "first";
 
@@ -79,6 +80,7 @@ export default function FlightModal({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const saveFlight = useSaveFlight();
 
   useEffect(() => {
     if (!open) return;
@@ -116,7 +118,6 @@ export default function FlightModal({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSaving(true);
     setError(null);
     try {
       const seats = seatsFromClassRows(classRows);
@@ -137,17 +138,10 @@ export default function FlightModal({
         seats,
       };
 
-      if (isEdit && flight) {
-        await api.patch(`/flights/${flight._id}`, payload);
-      } else {
-        await api.post("/flights", payload);
-      }
-      onSaved();
+      await saveFlight.mutateAsync({ id: flight?._id, payload });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save flight");
-    } finally {
-      setSaving(false);
     }
   }
 
