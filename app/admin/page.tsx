@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   CalendarCheck,
   Clock,
@@ -11,79 +10,12 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import StatCard from "./_components/StatCard";
-import { api, buildQuery } from "./_lib/api";
-import { Paginated } from "./_lib/types";
-
-interface Stats {
-  totalBookings: number;
-  pendingBookings: number;
-  paidBookings: number;
-  totalUsers: number;
-  totalFlights: number;
-  totalHotels: number;
-}
-
-async function countFrom(path: string, filters: Record<string, string> = {}) {
-  const query = buildQuery({ limit: 1, page: 1, ...filters });
-  const res = await api.get<Paginated<unknown>>(`${path}${query}`);
-  return res.total ?? res.results ?? 0;
-}
+import { useDashboardStats } from "./_lib/queries/useDashboardStats";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: stats, isLoading, isError } = useDashboardStats();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const [
-          totalBookings,
-          pendingBookings,
-          paidBookings,
-          totalUsers,
-          totalFlights,
-          totalHotels,
-        ] = await Promise.all([
-          countFrom("/bookings"),
-          countFrom("/bookings", { status: "pending" }),
-          countFrom("/bookings", { paymentStatus: "paid" }),
-          countFrom("/users"),
-          countFrom("/flights"),
-          countFrom("/hotels"),
-        ]);
-
-        if (!cancelled) {
-          setStats({
-            totalBookings,
-            pendingBookings,
-            paidBookings,
-            totalUsers,
-            totalFlights,
-            totalHotels,
-          });
-        }
-      } catch {
-        if (!cancelled)
-          setError(
-            "Failed to fetch statistics. Please check your API connection.",
-          );
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-[#7167FF]" />
@@ -93,7 +25,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* هدر دشبورد با استایل بنر یوزر پنل */}
       <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-[#111827]">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#7167FF]/10 text-[#7167FF]">
           <LayoutDashboard className="h-7 w-7" />
@@ -113,14 +44,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* نمایش خطا */}
-      {error && (
+      {isError && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
-          {error}
+          Failed to fetch statistics. Please check your API connection.
         </div>
       )}
 
-      {/* شبکه‌بندی کارت‌های آمار */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Total Bookings"

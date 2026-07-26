@@ -20,23 +20,31 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   cancelled: "Cancelled",
 };
 
+const ROW_CLASS =
+  "flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800/60 last:border-0 text-sm";
+const FOCUS_STYLE = { "--tw-ring-color": "#7167FF" } as React.CSSProperties;
+
+interface BookingDetailModalProps {
+  open: boolean;
+  onClose: () => void;
+  onUpdated: () => void;
+  booking: Booking | null;
+}
+
 export default function BookingDetailModal({
   open,
   onClose,
   onUpdated,
   booking,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onUpdated: () => void;
-  booking: Booking | null;
-}) {
+}: BookingDetailModalProps) {
   const [status, setStatus] = useState<BookingStatus>("pending");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (booking) setStatus(booking.status);
+    if (booking) {
+      setStatus(booking.status);
+    }
     setError(null);
   }, [booking]);
 
@@ -53,10 +61,13 @@ export default function BookingDetailModal({
       : (booking.hotelId as Hotel | undefined);
 
   async function handleStatusSave() {
+    if (!booking) return;
+
     setSaving(true);
     setError(null);
+
     try {
-      await api.patch(`/bookings/${booking!._id}`, { status });
+      await api.patch(`/bookings/${booking._id}`, { status });
       onUpdated();
       onClose();
     } catch {
@@ -66,9 +77,6 @@ export default function BookingDetailModal({
     }
   }
 
-  const row =
-    "flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800/60 last:border-0 text-sm";
-
   return (
     <Modal
       open={open}
@@ -76,24 +84,25 @@ export default function BookingDetailModal({
       title={`Booking Details: ${booking.referenceNumber}`}
     >
       <div className="space-y-6">
+        {/* User Info Section */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             User Information
           </h3>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
-            <div className={row}>
+            <div className={ROW_CLASS}>
               <span className="text-slate-500 dark:text-slate-400">Name</span>
               <span className="text-slate-900 dark:text-white font-medium">
                 {user?.name ?? "—"}
               </span>
             </div>
-            <div className={row}>
+            <div className={ROW_CLASS}>
               <span className="text-slate-500 dark:text-slate-400">Email</span>
               <span className="text-slate-900 dark:text-white">
                 {user?.email ?? "—"}
               </span>
             </div>
-            <div className={row}>
+            <div className={ROW_CLASS}>
               <span className="text-slate-500 dark:text-slate-400">Phone</span>
               <span className="text-slate-900 dark:text-white">
                 {user?.phone ?? "—"}
@@ -102,6 +111,7 @@ export default function BookingDetailModal({
           </div>
         </section>
 
+        {/* Flight or Hotel Info Section */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             {booking.bookingType === "flight"
@@ -111,7 +121,7 @@ export default function BookingDetailModal({
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
             {booking.bookingType === "flight" ? (
               <>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Flight
                   </span>
@@ -121,7 +131,7 @@ export default function BookingDetailModal({
                       : "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Route
                   </span>
@@ -131,7 +141,7 @@ export default function BookingDetailModal({
                       : "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Travel Date
                   </span>
@@ -141,7 +151,7 @@ export default function BookingDetailModal({
                       : "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Number of Passengers
                   </span>
@@ -152,7 +162,7 @@ export default function BookingDetailModal({
               </>
             ) : (
               <>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Hotel
                   </span>
@@ -160,15 +170,15 @@ export default function BookingDetailModal({
                     {hotel?.name ?? "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     City
                   </span>
                   <span className="text-slate-900 dark:text-white">
-                    {hotel?.location.city ?? "—"}
+                    {hotel?.location?.city ?? "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Check-in / Check-out
                   </span>
@@ -182,7 +192,7 @@ export default function BookingDetailModal({
                       : "—"}
                   </span>
                 </div>
-                <div className={row}>
+                <div className={ROW_CLASS}>
                   <span className="text-slate-500 dark:text-slate-400">
                     Rooms / Guests
                   </span>
@@ -196,20 +206,21 @@ export default function BookingDetailModal({
           </div>
         </section>
 
+        {/* Payment Section */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             Payment
           </h3>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
-            <div className={row}>
+            <div className={ROW_CLASS}>
               <span className="text-slate-500 dark:text-slate-400">
                 Total Price
               </span>
               <span className="text-slate-900 dark:text-white font-medium">
-                {booking.totalPrice.toLocaleString()} USD
+                {booking.totalPrice?.toLocaleString() ?? "0"} USD
               </span>
             </div>
-            <div className={row}>
+            <div className={ROW_CLASS}>
               <span className="text-slate-500 dark:text-slate-400">
                 Payment Status
               </span>
@@ -218,6 +229,7 @@ export default function BookingDetailModal({
           </div>
         </section>
 
+        {/* Status Action Section */}
         <section>
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
             Update Booking Status
@@ -232,7 +244,7 @@ export default function BookingDetailModal({
               value={status}
               onChange={(e) => setStatus(e.target.value as BookingStatus)}
               className="flex-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent"
-              style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+              style={FOCUS_STYLE}
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
@@ -243,7 +255,7 @@ export default function BookingDetailModal({
             <button
               onClick={handleStatusSave}
               disabled={saving || status === booking.status}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity disabled:opacity-50"
               style={{ backgroundColor: "#7167FF" }}
             >
               {saving ? "Saving..." : "Save Status"}

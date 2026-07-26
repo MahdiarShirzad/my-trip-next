@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Users as UsersIcon, ChevronRight } from "lucide-react";
 import SearchInput from "../_components/SearchInput";
 import Pagination from "../_components/Pagination";
@@ -16,32 +16,66 @@ export default function UsersPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<AdminUser | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const query = buildQuery({
-        page,
-        limit: LIMIT,
-        keyword: search || undefined,
-      });
-      const res = await api.get<Paginated<AdminUser>>(`/users${query}`);
-      setUsers(res.data);
-      setTotal(res.total);
-    } catch {
-      setError("Failed to fetch users list");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
+  // Simple debounce for search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Fetch users with AbortController handling
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const query = buildQuery({
+          page,
+          limit: LIMIT,
+          keyword: debouncedSearch || undefined,
+        });
+
+        const res = await api.get<Paginated<AdminUser>>(`/users${query}`, {
+          signal,
+        });
+
+        if (!signal?.aborted) {
+          setUsers(res.data);
+          setTotal(res.total);
+        }
+      } catch (err: any) {
+        if (err?.name !== "CanceledError" && !signal?.aborted) {
+          setError("Failed to fetch users list");
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [page, debouncedSearch],
+  );
 
   useEffect(() => {
-    load();
+    const controller = new AbortController();
+    load(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [load]);
+
+  const handleSearchChange = (value: string) => {
+    setPage(1);
+    setSearch(value);
+  };
 
   const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
 
@@ -49,10 +83,7 @@ export default function UsersPage() {
     <div className="space-y-4">
       <SearchInput
         value={search}
-        onChange={(v) => {
-          setPage(1);
-          setSearch(v);
-        }}
+        onChange={handleSearchChange}
         placeholder="Search by name or email..."
       />
 
@@ -141,7 +172,7 @@ export default function UsersPage() {
         open={Boolean(selected)}
         user={selected}
         onClose={() => setSelected(null)}
-        onUpdated={load}
+        onUpdated={() => load()}
       />
     </div>
   );

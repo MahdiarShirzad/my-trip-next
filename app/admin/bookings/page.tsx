@@ -9,6 +9,9 @@ import { api, buildQuery } from "../_lib/api";
 import { Booking, Paginated } from "../_lib/types";
 
 const LIMIT = 10;
+const SELECT_CLASS =
+  "rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent";
+const FOCUS_STYLE = { "--tw-ring-color": "#7167FF" } as React.CSSProperties;
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -28,6 +31,9 @@ export default function BookingsPage() {
     setLoading(true);
     setError(null);
     try {
+      // Adjust end-of-day timestamp for the 'to' filter to cover the full date
+      const formattedTo = to ? `${to}T23:59:59.999Z` : undefined;
+
       const query = buildQuery({
         page,
         limit: LIMIT,
@@ -35,8 +41,9 @@ export default function BookingsPage() {
         bookingType: type || undefined,
         status: status || undefined,
         "createdAt[gte]": from || undefined,
-        "createdAt[lte]": to || undefined,
+        "createdAt[lte]": formattedTo,
       });
+
       const res = await api.get<Paginated<Booking>>(`/bookings${query}`);
       setBookings(res.data);
       setTotal(res.total);
@@ -52,11 +59,10 @@ export default function BookingsPage() {
   }, [load]);
 
   const totalPages = Math.max(Math.ceil(total / LIMIT), 1);
-  const selectClass =
-    "rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent";
 
   return (
     <div className="space-y-4">
+      {/* Filters Bar */}
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={type}
@@ -64,8 +70,8 @@ export default function BookingsPage() {
             setPage(1);
             setType(e.target.value);
           }}
-          className={selectClass}
-          style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+          className={SELECT_CLASS}
+          style={FOCUS_STYLE}
         >
           <option value="">All Booking Types</option>
           <option value="flight">Flight</option>
@@ -78,8 +84,8 @@ export default function BookingsPage() {
             setPage(1);
             setStatus(e.target.value);
           }}
-          className={selectClass}
-          style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+          className={SELECT_CLASS}
+          style={FOCUS_STYLE}
         >
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
@@ -95,8 +101,8 @@ export default function BookingsPage() {
             setPage(1);
             setFrom(e.target.value);
           }}
-          className={selectClass}
-          style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+          className={SELECT_CLASS}
+          style={FOCUS_STYLE}
         />
         <span className="text-slate-400 text-sm">to</span>
         <input
@@ -106,8 +112,8 @@ export default function BookingsPage() {
             setPage(1);
             setTo(e.target.value);
           }}
-          className={selectClass}
-          style={{ "--tw-ring-color": "#7167FF" } as React.CSSProperties}
+          className={SELECT_CLASS}
+          style={FOCUS_STYLE}
         />
       </div>
 
@@ -117,6 +123,7 @@ export default function BookingsPage() {
         </div>
       )}
 
+      {/* Table Container */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -163,7 +170,7 @@ export default function BookingsPage() {
                   return (
                     <tr
                       key={b._id}
-                      className="border-b border-slate-100 dark:border-slate-800/60 last:border-0"
+                      className="border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
                     >
                       <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
                         {b.referenceNumber}
@@ -171,11 +178,11 @@ export default function BookingsPage() {
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                         {user?.name ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                        {b.bookingType === "flight" ? "Flight" : "Hotel"}
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 capitalize">
+                        {b.bookingType}
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                        {b.totalPrice.toLocaleString()} USD
+                        {b.totalPrice?.toLocaleString() ?? "0"} USD
                       </td>
                       <td className="px-4 py-3">
                         <Badge value={b.status} />
@@ -186,7 +193,8 @@ export default function BookingsPage() {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setSelected(b)}
-                          className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                          className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+                          aria-label="View details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -198,6 +206,7 @@ export default function BookingsPage() {
             </tbody>
           </table>
         </div>
+
         <Pagination
           page={page}
           totalPages={totalPages}
