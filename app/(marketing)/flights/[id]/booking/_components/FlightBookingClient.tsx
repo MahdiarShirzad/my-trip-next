@@ -60,14 +60,14 @@ export default function FlightBookingClient({
         const idRes = await setNationalId(values.nationalId);
         if (idRes?.data?.user) setUser(idRes.data.user);
       }
-      if (values.address && values.address !== user.address) {
+      if (values.address && values.address !== user!.address) {
         const profileRes = await updateProfile({ address: values.address });
         if (profileRes?.data?.user) setUser(profileRes.data.user);
       }
 
       const bookingRes = await createFlightBooking({
-        flightId: flight._id,
-        travelDate: flight.departureTime,
+        flightId: flight!._id,
+        travelDate: flight!.departureTime,
         passengers: [
           {
             name: values.fullName,
