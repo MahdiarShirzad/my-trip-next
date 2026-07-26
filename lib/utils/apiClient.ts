@@ -2,6 +2,12 @@ import { getAccessToken, setAccessToken, clearAccessToken } from "./token";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+if (!BASE_URL && typeof window === "undefined") {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not set. Add it in Vercel Project Settings → Environment Variables.",
+  );
+}
+
 interface ApiRequestOptions extends Omit<RequestInit, "body"> {
   method?: string;
   body?: unknown;

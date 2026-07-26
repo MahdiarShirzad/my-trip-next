@@ -97,30 +97,35 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     <main className="min-h-screen pb-24 transition-colors duration-300">
       <HotelHero />
 
-      <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
-        <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
-          <HotelSearch />
+      <Suspense fallback={null}>
+        <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
+          <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
+            <HotelSearch />
+          </div>
         </div>
-      </div>
 
-      <div className="mx-auto max-w-[1320px] px-6 py-16">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-          <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
-            <HotelFilters
-              propertyTypeOptions={propertyTypeOptions}
-              priceBounds={priceBounds}
-            />
-          </aside>
+        <div className="mx-auto max-w-[1320px] px-6 py-16">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+            <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
+              <HotelFilters
+                propertyTypeOptions={propertyTypeOptions}
+                priceBounds={priceBounds}
+              />
+            </aside>
 
-          <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <HotelResultsHeader count={hotelsCount} sortSlot={<HotelSort />} />
+            <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <HotelResultsHeader
+                count={hotelsCount}
+                sortSlot={<HotelSort />}
+              />
 
-            <Suspense fallback={<ResultsListSkeleton />}>
-              <HotelResultsList searchParams={searchParams} />
-            </Suspense>
-          </section>
+              <Suspense fallback={<ResultsListSkeleton />}>
+                <HotelResultsList searchParams={searchParams} />
+              </Suspense>
+            </section>
+          </div>
         </div>
-      </div>
+      </Suspense>
     </main>
   );
 }

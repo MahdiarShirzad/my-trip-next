@@ -102,35 +102,37 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
     <main className="min-h-screen pb-24 transition-colors duration-300">
       <FlightHero />
 
-      <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
-        <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
-          <FlightSearch />
+      <Suspense fallback={null}>
+        <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
+          <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
+            <FlightSearch />
+          </div>
         </div>
-      </div>
 
-      <div className="mx-auto max-w-[1320px] px-6 py-16">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-          <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
-            <FlightFilters
-              airlineOptions={airlineOptions}
-              priceBounds={priceBounds}
-            />
-          </aside>
+        <div className="mx-auto max-w-[1320px] px-6 py-16">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+            <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
+              <FlightFilters
+                airlineOptions={airlineOptions}
+                priceBounds={priceBounds}
+              />
+            </aside>
 
-          <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <Suspense
-              fallback={
-                <>
-                  <FlightResultsHeader count={0} sortSlot={<FlightSort />} />
-                  <ResultsListSkeleton />
-                </>
-              }
-            >
-              <FlightResultsSection searchParams={searchParams} />
-            </Suspense>
-          </section>
+            <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <Suspense
+                fallback={
+                  <>
+                    <FlightResultsHeader count={0} sortSlot={<FlightSort />} />
+                    <ResultsListSkeleton />
+                  </>
+                }
+              >
+                <FlightResultsSection searchParams={searchParams} />
+              </Suspense>
+            </section>
+          </div>
         </div>
-      </div>
+      </Suspense>
     </main>
   );
 }
