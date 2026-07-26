@@ -1,9 +1,9 @@
 "use client";
 
-import FlightCities from "../../../_components/FlightCities";
-import FlightCalendar from "../../../_components/FlightCalendar";
-import FlightPassenger from "../../../_components/FlightPassenger";
-import { useFlightSearch } from "../../../_components/FlightSearchContext";
+import FlightCalendar from "./FlightCalendar";
+import FlightCities from "./FlightCities";
+import FlightPassenger from "./FlightPassenger";
+import { useFlightSearch } from "./FlightSearchContext";
 
 function FlightSearch() {
   const { flightType, setFlightType } = useFlightSearch();

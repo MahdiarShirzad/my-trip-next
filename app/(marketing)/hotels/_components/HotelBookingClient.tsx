@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import BookingPersonalInfo, {
   BookingInfoValues,
 } from "@/app/_components/BookingPersonalInfo";
-import { HotelDetail } from "../hotel-booking";
+import { Hotel, Room } from "@/types/Hotel";
 import RoomMap from "./RoomMap";
 import HotelBookingSummary from "./HotelBookingSummary";
 import NightsCounter from "./NightsCounter";
@@ -18,7 +18,7 @@ import { initiatePayment, confirmPayment } from "@/lib/services/apiPayments";
 import { ApiError } from "@/lib/utils/apiClient";
 
 interface HotelBookingClientProps {
-  hotel: HotelDetail;
+  hotel: Hotel;
 }
 
 export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
@@ -32,11 +32,13 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRoom = useMemo(
-    () => hotel.rooms.find((r) => r.roomNumber === selectedRoomNumber) ?? null,
-    [hotel.rooms, selectedRoomNumber],
+    () =>
+      hotel?.rooms?.find((r: Room) => r.roomNumber === selectedRoomNumber) ??
+      null,
+    [hotel?.rooms, selectedRoomNumber],
   );
 
-  if (!user) return null;
+  if (!user || !hotel) return null;
 
   const hasNationalId = Boolean(user.nationalId);
 
@@ -47,6 +49,8 @@ export default function HotelBookingClient({ hotel }: HotelBookingClientProps) {
   }
 
   async function handleSubmit(values: BookingInfoValues) {
+    if (!user || !hotel) return;
+
     if (!selectedRoom) {
       toast.error("Please select a room first!");
       return;

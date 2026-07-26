@@ -1,18 +1,11 @@
-// types/hotel.ts
-// Mirrors the backend Mongoose model (Hotel/Room) 1:1, plus a few
-// UI-only fields that aren't in the backend schema yet:
-//   - guestRating / reviewCount  -> aggregated user review score
-//   - propertyType               -> Hotel / Apartment / Villa / Hostel / Resort
-// Once the backend adds these, just drop the "UI-only" comment and keep the shape.
-//
-// NOTE: filter option lists (AMENITIES_OPTIONS, PROPERTY_TYPE_OPTIONS, etc.)
-// and all filter/sort logic now live in @/lib/hotel-filters, mirroring how
-// flight-filters.ts owns that responsibility for flights. This file only
-// keeps the data shape.
-
 export type RoomType = "single" | "double" | "suite" | "deluxe";
 
-export type PropertyType = "hotel" | "apartment" | "villa" | "hostel" | "resort";
+export type PropertyType =
+  | "hotel"
+  | "apartment"
+  | "villa"
+  | "hostel"
+  | "resort";
 
 export interface Room {
   roomNumber: string;

@@ -6,9 +6,9 @@ import {
   FlightSearchProvider,
   useFlightSearch,
 } from "@/app/_components/FlightSearchContext";
-import FlightCities from "@/app/_components/FlightCities";
 import FlightCalendar from "@/app/_components/FlightCalendar";
 import FlightPassenger from "@/app/_components/FlightPassenger";
+import FlightCities from "@/app/_components/FlightCities";
 
 function FlightSearchForm() {
   const router = useRouter();
@@ -31,7 +31,7 @@ function FlightSearchForm() {
 
   function handleSearch() {
     if (!originCode || !destinationCode) {
-      alert("لطفا مبدا و مقصد را از لیست پیشنهادی انتخاب کنید");
+      alert("please select the origin and destination");
       return;
     }
 

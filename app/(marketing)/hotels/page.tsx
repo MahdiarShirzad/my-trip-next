@@ -86,7 +86,7 @@ async function HotelResultsList({
 
 export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const res = await getAllHotels();
-  const hotelsCount = res?.results;
+  const hotelsCount = res?.results ?? 0;
 
   const allHotels = res?.data?.hotels ?? [];
 
@@ -99,7 +99,6 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
 
       <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
         <div className="rounded-[2rem] border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
-          {/* دکمه‌ی سرچ الان خودِ HotelSearch داره؛ دکمه‌ی جدای قبلی (بدون onClick) حذف شد */}
           <HotelSearch />
         </div>
       </div>

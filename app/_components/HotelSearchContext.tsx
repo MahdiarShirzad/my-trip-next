@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-import type { RoomType } from "@/types/hotel";
+import { createContext, useContext, useState, ReactNode } from "react";
+import type { RoomType } from "@/types/Hotel";
 
 interface HotelSearchContextValue {
   destinationCity: string;
@@ -42,16 +36,15 @@ export function HotelSearchProvider({
 }) {
   const [destinationCity, setDestinationCity] = useState("");
 
-  const [checkInDate, setCheckInDateState] = useState<Date | null>(null);
-  const [checkOutDate, setCheckOutDate] = useState<Date | null>(null);
-
-  useEffect(() => {
+  const [checkInDate, setCheckInDateState] = useState<Date | null>(
+    () => new Date(),
+  );
+  const [checkOutDate, setCheckOutDate] = useState<Date | null>(() => {
     const today = new Date();
     const inThreeDays = new Date(today);
     inThreeDays.setDate(inThreeDays.getDate() + 3);
-    setCheckInDateState(today);
-    setCheckOutDate(inThreeDays);
-  }, []);
+    return inThreeDays;
+  });
 
   const [adults, setAdults] = useState(1);
   const [childrenCount, setChildrenCount] = useState(0);

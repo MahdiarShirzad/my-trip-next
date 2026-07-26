@@ -64,57 +64,25 @@ export default function FlightModal({
   flight: Flight | null;
 }) {
   const isEdit = Boolean(flight);
-  const [form, setForm] = useState({
-    airline: "",
-    flightNumber: "",
-    originCode: "",
-    originCity: "",
-    destinationCode: "",
-    destinationCity: "",
-    departureTime: "",
-    arrivalTime: "",
-    status: "scheduled" as Flight["status"],
-  });
-  const [classRows, setClassRows] = useState<Record<SeatClass, ClassRow>>(
-    classRowsFromSeats([]),
+  const [form, setForm] = useState(() => ({
+    airline: flight?.airline ?? "",
+    flightNumber: flight?.flightNumber ?? "",
+    originCode: flight?.origin?.code ?? "",
+    originCity: flight?.origin?.city ?? "",
+    destinationCode: flight?.destination?.code ?? "",
+    destinationCity: flight?.destination?.city ?? "",
+    departureTime: flight?.departureTime
+      ? flight.departureTime.slice(0, 16)
+      : "",
+    arrivalTime: flight?.arrivalTime ? flight.arrivalTime.slice(0, 16) : "",
+    status: flight?.status ?? "scheduled",
+  }));
+  const [classRows, setClassRows] = useState<Record<SeatClass, ClassRow>>(() =>
+    classRowsFromSeats(flight?.seats),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const saveFlight = useSaveFlight();
-
-  useEffect(() => {
-    if (!open) return;
-    if (flight) {
-      setForm({
-        airline: flight.airline ?? "",
-        flightNumber: flight.flightNumber ?? "",
-        originCode: flight.origin?.code ?? "",
-        originCity: flight.origin?.city ?? "",
-        destinationCode: flight.destination?.code ?? "",
-        destinationCity: flight.destination?.city ?? "",
-        departureTime: flight.departureTime
-          ? flight.departureTime.slice(0, 16)
-          : "",
-        arrivalTime: flight.arrivalTime ? flight.arrivalTime.slice(0, 16) : "",
-        status: flight.status ?? "scheduled",
-      });
-      setClassRows(classRowsFromSeats(flight.seats));
-    } else {
-      setForm({
-        airline: "",
-        flightNumber: "",
-        originCode: "",
-        originCity: "",
-        destinationCode: "",
-        destinationCity: "",
-        departureTime: "",
-        arrivalTime: "",
-        status: "scheduled",
-      });
-      setClassRows(classRowsFromSeats([]));
-    }
-    setError(null);
-  }, [open, flight]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

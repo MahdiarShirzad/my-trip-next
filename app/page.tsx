@@ -5,7 +5,6 @@ import FlightSeoContent from "./_components/FlightSeoContent";
 import Hero from "./_components/Hero";
 import HotelSection from "./_components/HotelSection";
 import ProductBox from "./_components/ProductBox";
-import Testimonials from "./_components/Testimonials";
 
 export default function HomePage() {
   return (
@@ -17,7 +16,6 @@ export default function HomePage() {
       <HotelSection />
       <FAQ />
       <FlightSeoContent />
-      {/* <Testimonials /> */}
     </main>
   );
 }

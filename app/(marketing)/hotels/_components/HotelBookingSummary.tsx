@@ -1,5 +1,5 @@
 import { HotelDetail } from "../hotel-booking";
-import { Room } from "@/types/hotel";
+import { Room } from "@/types/Hotel";
 import HotelImageGallery from "./HotelImageGallery";
 
 interface HotelBookingSummaryProps {
@@ -40,7 +40,7 @@ export default function HotelBookingSummary({
           Hotel Info
         </p>
         <SummaryRow label="Location" value={hotel.location.city} />
-        <SummaryRow label="Property Type" value={hotel.propertyType} />
+        <SummaryRow label="Property Type" value={hotel.propertyType ?? "—"} />
         <SummaryRow
           label="Rating"
           value={`${hotel.guestRating}/5 (${hotel.reviewCount} reviews)`}

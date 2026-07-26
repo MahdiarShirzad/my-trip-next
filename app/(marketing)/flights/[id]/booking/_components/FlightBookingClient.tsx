@@ -16,12 +16,21 @@ import { ApiError } from "@/lib/utils/apiClient";
 import { confirmPayment, initiatePayment } from "@/lib/services/apiPayments";
 import { useRouter } from "next/navigation";
 
-interface FlightBookingClientProps {
+export interface CurrentUser {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+
+export interface FlightBookingClientProps {
   flight: FlightDetail | null;
+  currentUser?: CurrentUser;
 }
 
 export default function FlightBookingClient({
   flight,
+  currentUser,
 }: FlightBookingClientProps) {
   const { user, setUser } = useAuth();
   const [selectedSeatNumber, setSelectedSeatNumber] = useState<string | null>(
@@ -49,6 +58,10 @@ export default function FlightBookingClient({
   }
 
   async function handleSubmit(values: BookingInfoValues) {
+    if (!flight || !user) {
+      return;
+    }
+
     if (!selectedSeat) {
       toast.error("Please select a seat first!");
       return;
@@ -60,14 +73,14 @@ export default function FlightBookingClient({
         const idRes = await setNationalId(values.nationalId);
         if (idRes?.data?.user) setUser(idRes.data.user);
       }
-      if (values.address && values.address !== user!.address) {
+      if (values.address && values.address !== user.address) {
         const profileRes = await updateProfile({ address: values.address });
         if (profileRes?.data?.user) setUser(profileRes.data.user);
       }
 
       const bookingRes = await createFlightBooking({
-        flightId: flight!._id,
-        travelDate: flight!.departureTime,
+        flightId: flight._id,
+        travelDate: flight.departureTime,
         passengers: [
           {
             name: values.fullName,

@@ -1,7 +1,17 @@
-// types/flight-booking.ts
-// Mirrors the backend Mongoose Flight/Seat schema 1:1.
+export type SeatClass = "first" | "business" | "economy";
 
-export type SeatClass = "economy" | "business" | "first";
+export type FlightStatus =
+  | "scheduled"
+  | "delayed"
+  | "boarding"
+  | "departed"
+  | "cancelled"
+  | "completed";
+
+export interface Airport {
+  code: string;
+  city: string;
+}
 
 export interface Seat {
   seatNumber: string;
@@ -10,23 +20,18 @@ export interface Seat {
   isBooked: boolean;
 }
 
-export interface FlightLocation {
-  code: string;
-  city: string;
-}
-
-export type FlightStatus = "scheduled" | "delayed" | "cancelled" | "boarding";
 export interface FlightDetail {
   _id: string;
   airline: string;
   flightNumber: string;
-  origin: FlightLocation;
-  destination: FlightLocation;
-  departureTime: string; // ISO date string over the wire
+  origin: Airport;
+  destination: Airport;
+  departureTime: string;
   arrivalTime: string;
-  duration?: number; // minutes
   seats: Seat[];
+  status: FlightStatus;
   totalSeats: number;
   availableSeats: number;
-  status: FlightStatus;
+  createdAt?: string;
+  updatedAt?: string;
 }

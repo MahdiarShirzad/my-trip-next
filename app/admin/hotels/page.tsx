@@ -220,11 +220,12 @@ export default function HotelsPage() {
           onChange={setPage}
         />
       </div>
-
       <HotelModal
+        key={editing?._id ?? "new"}
         open={modalOpen}
         hotel={editing}
         onClose={() => setModalOpen(false)}
+        onSaved={() => setModalOpen(false)}
       />
 
       <ConfirmDialog

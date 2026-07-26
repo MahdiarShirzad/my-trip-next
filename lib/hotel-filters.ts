@@ -1,9 +1,5 @@
-import { Hotel, PropertyType, RoomType } from "@/types/hotel";
+import { Hotel, PropertyType, RoomType } from "@/types/Hotel";
 
-// ---------------------------------------------------------------------------
-// URL search params shape — mirrors flight-filters.ts FlightSearchParams.
-// Every filter is string | string[] because Next.js searchParams are always
-// strings coming off the URL.
 // ---------------------------------------------------------------------------
 export interface HotelSearchParams {
   minPrice?: string;
@@ -84,7 +80,9 @@ export function getPropertyTypeOptions(hotels: Hotel[]): PropertyType[] {
   return Array.from(new Set(hotels.map((h) => h.propertyType)));
 }
 
-function departureBucket(hour: number): "morning" | "afternoon" | "evening" | "night" {
+function departureBucket(
+  hour: number,
+): "morning" | "afternoon" | "evening" | "night" {
   if (hour >= 6 && hour < 12) return "morning";
   if (hour >= 12 && hour < 18) return "afternoon";
   if (hour >= 18 && hour < 24) return "evening";
@@ -93,7 +91,10 @@ function departureBucket(hour: number): "morning" | "afternoon" | "evening" | "n
 void departureBucket; // not used for hotels, kept out of the public API on purpose
 
 /** Filters the hotel list against every param present in the URL. */
-export function filterHotels(hotels: Hotel[], params: HotelSearchParams): Hotel[] {
+export function filterHotels(
+  hotels: Hotel[],
+  params: HotelSearchParams,
+): Hotel[] {
   const stars = toArray(params.star).map(Number);
   const propertyTypes = toArray(params.propertyType) as PropertyType[];
   const roomTypes = toArray(params.roomType) as RoomType[];
@@ -110,16 +111,10 @@ export function filterHotels(hotels: Hotel[], params: HotelSearchParams): Hotel[
 
     if (stars.length > 0 && !stars.includes(hotel.starRating)) return false;
 
-    if (
-      minGuestRating !== undefined &&
-      hotel.guestRating < minGuestRating
-    )
+    if (minGuestRating !== undefined && hotel.guestRating < minGuestRating)
       return false;
 
-    if (
-      propertyTypes.length > 0 &&
-      !propertyTypes.includes(hotel.propertyType)
-    )
+    if (propertyTypes.length > 0 && !propertyTypes.includes(hotel.propertyType))
       return false;
 
     if (

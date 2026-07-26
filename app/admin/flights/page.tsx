@@ -165,9 +165,11 @@ export default function FlightsPage() {
       </div>
 
       <FlightModal
+        key={editing?._id ?? "new"}
         open={modalOpen}
         flight={editing}
         onClose={() => setModalOpen(false)}
+        onSaved={() => setModalOpen(false)}
       />
 
       <ConfirmDialog

@@ -43,38 +43,27 @@ export default function HotelModal({
 }) {
   const isEdit = Boolean(hotel);
   const saveHotel = useSaveHotel();
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [images, setImages] = useState<string[]>([]);
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [form, setForm] = useState(() =>
+    hotel
+      ? {
+          name: hotel.name ?? "",
+          description: hotel.description ?? "",
+          city: hotel.location?.city ?? "",
+          address: hotel.location?.address ?? "",
+          zipCode: hotel.location?.zipCode ?? "",
+          starRating: hotel.starRating ?? 3,
+          phone: hotel.contactInfo?.phone ?? "",
+          email: hotel.contactInfo?.email ?? "",
+          checkInTime: hotel.checkInTime ?? "14:00",
+          checkOutTime: hotel.checkOutTime ?? "12:00",
+        }
+      : EMPTY_FORM,
+  );
+  const [images, setImages] = useState<string[]>(hotel?.images ?? []);
+  const [rooms, setRooms] = useState<Room[]>(hotel?.rooms ?? []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    if (hotel) {
-      setForm({
-        name: hotel.name ?? "",
-        description: hotel.description ?? "",
-        city: hotel.location?.city ?? "",
-        address: hotel.location?.address ?? "",
-        zipCode: hotel.location?.zipCode ?? "",
-        starRating: hotel.starRating ?? 3,
-        phone: hotel.contactInfo?.phone ?? "",
-        email: hotel.contactInfo?.email ?? "",
-        checkInTime: hotel.checkInTime ?? "14:00",
-        checkOutTime: hotel.checkOutTime ?? "12:00",
-      });
-      setImages(hotel.images ?? []);
-      setRooms(hotel.rooms ?? []);
-    } else {
-      setForm(EMPTY_FORM);
-      setImages([]);
-      setRooms([]);
-    }
-    setError(null);
-  }, [open, hotel]);
-
   async function handleUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;

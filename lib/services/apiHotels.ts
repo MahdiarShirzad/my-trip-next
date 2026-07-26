@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/utils/apiClient";
-import type { Hotel, RoomType } from "@/types/hotel";
+import type { Hotel, RoomType } from "@/types/Hotel";
 
 interface HotelsResponse {
   status: string;
@@ -7,7 +7,6 @@ interface HotelsResponse {
   data: { hotels: Hotel[] };
 }
 
-// از همون تابع امن (بدون تبدیل به UTC) که برای فلایت هم درست کردیم استفاده می‌کنیم.
 function toLocalDate(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
