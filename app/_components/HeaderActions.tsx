@@ -8,7 +8,7 @@ import UserMenu from "./UserMenu";
 
 export default function HeaderActions() {
   const { resolvedTheme, setTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,10 +16,13 @@ export default function HeaderActions() {
   }, []);
 
   const isDark = mounted && resolvedTheme === "dark";
+  const showSkeleton = !mounted || isLoading;
 
   return (
     <div className="flex items-center gap-5 max-sm:gap-3 text-sm font-semibold">
-      {mounted && user ? (
+      {showSkeleton ? (
+        <div className="h-9 w-24 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+      ) : user ? (
         <UserMenu />
       ) : (
         <>

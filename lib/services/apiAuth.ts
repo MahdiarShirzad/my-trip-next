@@ -46,12 +46,21 @@ export interface UpdateProfilePayload {
   address?: string;
 }
 
+function setAuthRoleCookie(role: "user" | "admin") {
+  document.cookie = `auth-role=${role}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`;
+}
+
+function clearAuthRoleCookie() {
+  document.cookie = "auth-role=; path=/; max-age=0";
+}
+
 export async function login(data: LoginPayload) {
   const res = await apiRequest<AuthResponse>("/auth/login", {
     method: "POST",
     body: data,
   });
   if (res?.accessToken) setAccessToken(res.accessToken);
+  if (res?.data?.user?.role) setAuthRoleCookie(res.data.user.role);
   return res;
 }
 
@@ -61,12 +70,14 @@ export async function signup(data: RegisterPayload) {
     body: data,
   });
   if (res?.accessToken) setAccessToken(res.accessToken);
+  if (res?.data?.user?.role) setAuthRoleCookie(res.data.user.role);
   return res;
 }
 
 export async function logout() {
   const res = await apiRequest("/auth/logout", { method: "POST" });
   clearAccessToken();
+  clearAuthRoleCookie();
   return res;
 }
 

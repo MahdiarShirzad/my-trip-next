@@ -12,9 +12,26 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function setAuthRoleCookie(role: "user" | "admin") {
+  document.cookie = `auth-role=${role}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`;
+}
+
+function clearAuthRoleCookie() {
+  document.cookie = "auth-role=; path=/; max-age=0";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  function setUser(nextUser: User | null) {
+    setUserState(nextUser);
+    if (nextUser) {
+      setAuthRoleCookie(nextUser.role);
+    } else {
+      clearAuthRoleCookie();
+    }
+  }
 
   useEffect(() => {
     async function bootstrap() {
