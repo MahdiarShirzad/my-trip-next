@@ -12,6 +12,21 @@ import {
 import FlightResultCard from "./FlightResultCard";
 import FlightSort from "./FlightSort";
 
+function isFlightExpired(departureTime: string) {
+  return new Date(departureTime).getTime() < Date.now();
+}
+
+function pushExpiredToEnd<T extends { departureTime: string }>(flights: T[]) {
+  const active: T[] = [];
+  const expired: T[] = [];
+
+  for (const flight of flights) {
+    (isFlightExpired(flight.departureTime) ? expired : active).push(flight);
+  }
+
+  return [...active, ...expired];
+}
+
 export default async function FlightResultsSection({
   searchParams,
 }: {
@@ -27,7 +42,8 @@ export default async function FlightResultsSection({
 
   const allFlights = adaptFlights(data);
   const filtered = filterFlights(allFlights, params);
-  const results = sortFlights(filtered, params.sort);
+  const sorted = sortFlights(filtered, params.sort);
+  const results = pushExpiredToEnd(sorted);
 
   return (
     <>
