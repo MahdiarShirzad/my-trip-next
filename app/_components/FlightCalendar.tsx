@@ -1,15 +1,55 @@
 "use client";
 
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import dynamic from "next/dynamic";
 import { useFlightSearch } from "./FlightSearchContext";
 
-export default function FlightCalendar({ type }: { type: string }) {
-  const { journeyDate, setJourneyDate, returnDate, setReturnDate } =
-    useFlightSearch();
+// react-datepicker (plus date-fns/floating-ui, ~174KB) is only needed once
+// the user interacts with a date field — keep it out of the initial bundle.
+// The fallback mirrors the loaded layout so nothing shifts while it loads.
+const FlightDatePickers = dynamic(() => import("./FlightDatePickers"), {
+  ssr: false,
+  loading: () => <FlightDatePickersFallback />,
+});
+
+function formatShortDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function FlightDatePickersFallback() {
+  const { flightType, journeyDate, returnDate } = useFlightSearch();
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  return (
+    <div className="flex gap-3">
+      <div className="flex-1">
+        <span className="block w-full font-bold text-lg text-slate-800 dark:text-white">
+          {formatShortDate(journeyDate)}
+        </span>
+        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+          {weekDays[journeyDate.getDay()]}
+        </p>
+      </div>
+
+      {flightType === "Round Way" && (
+        <div className="flex-1 border-l border-slate-200 dark:border-slate-700 pl-3">
+          <span className="block w-full font-bold text-lg text-slate-800 dark:text-white">
+            {formatShortDate(returnDate)}
+          </span>
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+            {weekDays[returnDate.getDay()]}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function FlightCalendar({ type }: { type: string }) {
   return (
     <div className="flex-1 max-lg:w-full">
       <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 h-full">
@@ -33,39 +73,7 @@ export default function FlightCalendar({ type }: { type: string }) {
           </svg>
         </div>
 
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <DatePicker
-              className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
-              calendarClassName="mytrip-datepicker"
-              popperClassName="mytrip-datepicker-popper"
-              selected={journeyDate}
-              onChange={(date: Date | null) => date && setJourneyDate(date)}
-              dateFormat="MMM d, yyyy"
-              minDate={new Date()}
-            />
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-              {weekDays[journeyDate.getDay()]}
-            </p>
-          </div>
-
-          {type === "Round Way" && (
-            <div className="flex-1 border-l border-slate-200 dark:border-slate-700 pl-3">
-              <DatePicker
-                className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
-                calendarClassName="mytrip-datepicker"
-                popperClassName="mytrip-datepicker-popper"
-                selected={returnDate}
-                onChange={(date: Date | null) => date && setReturnDate(date)}
-                dateFormat="MMM d, yyyy"
-                minDate={journeyDate}
-              />
-              <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-                {weekDays[returnDate.getDay()]}
-              </p>
-            </div>
-          )}
-        </div>
+        <FlightDatePickers />
       </div>
     </div>
   );

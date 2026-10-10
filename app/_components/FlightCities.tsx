@@ -2,7 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFlightSearch } from "./FlightSearchContext";
-import { AIRPORTS, findAirportByCity } from "./airports";
+import type { Airport } from "./airports";
+
+const MAX_SUGGESTIONS = 30;
+
+// The airport list is ~350KB of JSON; loading it on demand keeps it out of
+// the page's initial JavaScript. The promise cache makes repeat focus and
+// component remounts resolve without another network round trip.
+let airportsPromise: Promise<Airport[]> | null = null;
+
+function loadAirports(): Promise<Airport[]> {
+  airportsPromise ??= import("./airports").then((m) => m.AIRPORTS);
+  return airportsPromise;
+}
+
+function filterAirports(airports: Airport[], query: string): Airport[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return airports.slice(0, MAX_SUGGESTIONS);
+
+  const matches: Airport[] = [];
+  for (const airport of airports) {
+    if (airport.city.toLowerCase().includes(q)) {
+      matches.push(airport);
+      if (matches.length >= MAX_SUGGESTIONS) break;
+    }
+  }
+  return matches;
+}
 
 export default function FlightCities() {
   const {
@@ -18,6 +44,7 @@ export default function FlightCities() {
   const [openField, setOpenField] = useState<"origin" | "destination" | null>(
     null,
   );
+  const [airports, setAirports] = useState<Airport[] | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -37,13 +64,28 @@ export default function FlightCities() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openField]);
 
+  useEffect(() => {
+    if (!openField || airports) return;
+
+    let cancelled = false;
+    loadAirports().then((list) => {
+      if (!cancelled) setAirports(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [openField, airports]);
+
   const canSwap = Boolean(originCity || destinationCity);
 
-  function suggestionsFor(query: string) {
-    const q = query.trim().toLowerCase();
-    if (!q) return AIRPORTS;
-    return AIRPORTS.filter((a) => a.city.toLowerCase().includes(q));
-  }
+  const originSuggestions =
+    airports && openField === "origin"
+      ? filterAirports(airports, originCity)
+      : [];
+  const destinationSuggestions =
+    airports && openField === "destination"
+      ? filterAirports(airports, destinationCity)
+      : [];
 
   function pickOrigin(city: string, code: string) {
     setOriginCity(city);
@@ -95,7 +137,7 @@ export default function FlightCities() {
 
         {openField === "origin" && (
           <ul className="absolute left-0 right-0 top-full mt-2 z-30 max-h-64 overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl">
-            {suggestionsFor(originCity).map((a) => (
+            {originSuggestions.map((a) => (
               <li key={a.code}>
                 <button
                   type="button"
@@ -107,8 +149,11 @@ export default function FlightCities() {
                 </button>
               </li>
             ))}
-            {suggestionsFor(originCity).length === 0 && (
+            {airports && originSuggestions.length === 0 && (
               <li className="px-4 py-2.5 text-sm text-slate-400">No matches</li>
+            )}
+            {!airports && (
+              <li className="px-4 py-2.5 text-sm text-slate-400">Loading…</li>
             )}
           </ul>
         )}
@@ -176,7 +221,7 @@ export default function FlightCities() {
 
         {openField === "destination" && (
           <ul className="absolute left-0 right-0 top-full mt-2 z-30 max-h-64 overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl">
-            {suggestionsFor(destinationCity).map((a) => (
+            {destinationSuggestions.map((a) => (
               <li key={a.code}>
                 <button
                   type="button"
@@ -188,8 +233,11 @@ export default function FlightCities() {
                 </button>
               </li>
             ))}
-            {suggestionsFor(destinationCity).length === 0 && (
+            {airports && destinationSuggestions.length === 0 && (
               <li className="px-4 py-2.5 text-sm text-slate-400">No matches</li>
+            )}
+            {!airports && (
+              <li className="px-4 py-2.5 text-sm text-slate-400">Loading…</li>
             )}
           </ul>
         )}

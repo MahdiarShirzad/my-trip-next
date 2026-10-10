@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useId, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import React, { useEffect, useId, useRef, useState } from "react";
 
 const faqData = [
   {
@@ -41,10 +40,145 @@ const PlaneIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+function useInViewOnce<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || inView) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [inView]);
+
+  return { ref, inView };
+}
+
+function FAQItem({
+  item,
+  index,
+  isOpen,
+  onToggle,
+  uid,
+}: {
+  item: { title: string; desc: string };
+  index: number;
+  isOpen: boolean;
+  onToggle: (index: number) => void;
+  uid: string;
+}) {
+  const { ref: cardRef, inView } = useInViewOnce<HTMLDivElement>();
+  const code = `Q${String(index + 1).padStart(2, "0")}`;
+  const panelId = `${uid}-panel-${index}`;
+  const buttonId = `${uid}-button-${index}`;
+
+  return (
+    <div
+      ref={cardRef}
+      className={`relative transition-[opacity,transform] duration-300 ease-in-out motion-reduce:transition-none ${
+        inView ? "translate-y-0 opacity-100" : "translate-y-[10px] opacity-0"
+      }`}
+      style={{ transitionDelay: inView ? `${index * 50}ms` : "0ms" }}
+    >
+      {/* die-cut notches, matching page background */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-2 left-12 md:left-14 z-20 h-4 w-4 rounded-full bg-slate-50 dark:bg-slate-950"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-2 left-12 md:left-14 z-20 h-4 w-4 rounded-full bg-slate-50 dark:bg-slate-950"
+      />
+
+      <div
+        className={`flex rounded-2xl border-2 transition-colors overflow-hidden ${
+          isOpen
+            ? "border-[#7167FF] bg-white shadow-lg dark:bg-slate-800 dark:shadow-[#7167FF]/10"
+            : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+        }`}
+      >
+        {/* Ticket stub */}
+        <div
+          className={`flex w-14 md:w-16 shrink-0 flex-col items-center justify-center gap-1.5 border-r-2 border-dashed py-5 ${
+            isOpen
+              ? "border-[#7167FF]/40 bg-amber-50/60 dark:bg-slate-950/40"
+              : "border-slate-300 dark:border-slate-600 bg-slate-100/60 dark:bg-slate-950/30"
+          }`}
+        >
+          <PlaneIcon className="h-3.5 w-3.5 text-[#7167FF]" />
+          <span className="font-mono text-[11px] font-bold tracking-wider text-[#7167FF]">
+            {code}
+          </span>
+        </div>
+
+        {/* Question / Answer */}
+        <div className="min-w-0 flex-1">
+          <button
+            id={buttonId}
+            aria-expanded={isOpen}
+            aria-controls={panelId}
+            onClick={() => onToggle(index)}
+            className="flex w-full items-center justify-between gap-4 rounded-lg px-4 py-4 text-left transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7167FF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 md:px-6"
+          >
+            <span
+              className={`font-bold text-base md:text-lg transition-colors ${
+                isOpen
+                  ? "text-[#7167FF]"
+                  : "text-slate-900 dark:text-slate-100"
+              }`}
+            >
+              {item.title}
+            </span>
+            <span
+              className={`shrink-0 transition-transform duration-300 ease-in-out motion-reduce:transition-none ${
+                isOpen ? "rotate-90" : "rotate-0"
+              } ${isOpen ? "text-[#7167FF]" : "text-slate-400 dark:text-slate-500"}`}
+            >
+              <PlaneIcon className="h-5 w-5" />
+            </span>
+          </button>
+
+          <div
+            id={panelId}
+            role="region"
+            aria-labelledby={buttonId}
+            inert={!isOpen}
+            className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-[350ms] ease-in-out motion-reduce:transition-none ${
+              isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="border-t-2 border-slate-200 px-4 py-4 dark:border-slate-700 md:px-6">
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 md:text-base">
+                  {item.desc}
+                </p>
+                <div
+                  aria-hidden="true"
+                  className="mt-4 h-3 w-full text-slate-200 dark:text-slate-700"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 5px, currentColor 5px 6px, transparent 6px 11px, currentColor 11px 13px, transparent 13px 18px)",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const uid = useId();
-  const shouldReduceMotion = useReducedMotion();
 
   const toggle = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -70,113 +204,16 @@ const FAQ = () => {
       </div>
 
       <div className="max-w-[900px] mx-auto space-y-4">
-        {faqData.map((item, index) => {
-          const isOpen = activeIndex === index;
-          const code = `Q${String(index + 1).padStart(2, "0")}`;
-          const panelId = `${uid}-panel-${index}`;
-          const buttonId = `${uid}-button-${index}`;
-
-          return (
-            <div key={index} className="relative">
-              {/* die-cut notches, matching page background */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-2 left-12 md:left-14 z-20 h-4 w-4 rounded-full bg-slate-50 dark:bg-slate-950"
-              />
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -bottom-2 left-12 md:left-14 z-20 h-4 w-4 rounded-full bg-slate-50 dark:bg-slate-950"
-              />
-
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                viewport={{ once: true }}
-                className={`flex rounded-2xl border-2 transition-colors overflow-hidden ${
-                  isOpen
-                    ? "border-[#7167FF] bg-white shadow-lg dark:bg-slate-800 dark:shadow-[#7167FF]/10"
-                    : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
-                }`}
-              >
-                {/* Ticket stub */}
-                <div
-                  className={`flex w-14 md:w-16 shrink-0 flex-col items-center justify-center gap-1.5 border-r-2 border-dashed py-5 ${
-                    isOpen
-                      ? "border-[#7167FF]/40 bg-amber-50/60 dark:bg-slate-950/40"
-                      : "border-slate-300 dark:border-slate-600 bg-slate-100/60 dark:bg-slate-950/30"
-                  }`}
-                >
-                  <PlaneIcon className="h-3.5 w-3.5 text-[#7167FF]" />
-                  <span className="font-mono text-[11px] font-bold tracking-wider text-[#7167FF]">
-                    {code}
-                  </span>
-                </div>
-
-                {/* Question / Answer */}
-                <div className="min-w-0 flex-1">
-                  <button
-                    id={buttonId}
-                    aria-expanded={isOpen}
-                    aria-controls={panelId}
-                    onClick={() => toggle(index)}
-                    className="flex w-full items-center justify-between gap-4 rounded-lg px-4 py-4 text-left transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7167FF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 md:px-6"
-                  >
-                    <span
-                      className={`font-bold text-base md:text-lg transition-colors ${
-                        isOpen
-                          ? "text-[#7167FF]"
-                          : "text-slate-900 dark:text-slate-100"
-                      }`}
-                    >
-                      {item.title}
-                    </span>
-                    <motion.span
-                      animate={{ rotate: isOpen ? 90 : 0 }}
-                      transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
-                      className={`shrink-0 ${isOpen ? "text-[#7167FF]" : "text-slate-400 dark:text-slate-500"}`}
-                    >
-                      <PlaneIcon className="h-5 w-5" />
-                    </motion.span>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        key="content"
-                        id={panelId}
-                        role="region"
-                        aria-labelledby={buttonId}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{
-                          duration: shouldReduceMotion ? 0 : 0.35,
-                          ease: "easeInOut",
-                        }}
-                        className="overflow-hidden"
-                      >
-                        <div className="border-t-2 border-slate-200 px-4 py-4 dark:border-slate-700 md:px-6">
-                          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 md:text-base">
-                            {item.desc}
-                          </p>
-                          <div
-                            aria-hidden="true"
-                            className="mt-4 h-3 w-full text-slate-200 dark:text-slate-700"
-                            style={{
-                              backgroundImage:
-                                "repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 5px, currentColor 5px 6px, transparent 6px 11px, currentColor 11px 13px, transparent 13px 18px)",
-                            }}
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            </div>
-          );
-        })}
+        {faqData.map((item, index) => (
+          <FAQItem
+            key={index}
+            item={item}
+            index={index}
+            isOpen={activeIndex === index}
+            onToggle={toggle}
+            uid={uid}
+          />
+        ))}
       </div>
     </section>
   );

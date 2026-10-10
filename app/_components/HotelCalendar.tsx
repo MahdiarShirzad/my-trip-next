@@ -1,14 +1,56 @@
 "use client";
 
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import dynamic from "next/dynamic";
 import { useHotelSearch } from "./HotelSearchContext";
 
-export default function HotelCalendar() {
-  const { checkInDate, setCheckInDate, checkOutDate, setCheckOutDate } =
-    useHotelSearch();
+// react-datepicker (plus date-fns/floating-ui, ~174KB) is only needed once
+// the user interacts with a date field — keep it out of the initial bundle.
+// The fallback mirrors the loaded layout so nothing shifts while it loads.
+const HotelDatePickers = dynamic(() => import("./HotelDatePickers"), {
+  ssr: false,
+  loading: () => <HotelDatePickersFallback />,
+});
+
+function formatShortDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function HotelDatePickersFallback() {
+  const { checkInDate, checkOutDate } = useHotelSearch();
+
+  if (!checkInDate || !checkOutDate) return null;
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return (
+    <div className="flex gap-3">
+      <div className="flex-1">
+        <span className="block w-full font-bold text-lg text-slate-800 dark:text-white">
+          {formatShortDate(checkInDate)}
+        </span>
+        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+          {weekDays[checkInDate.getDay()]}
+        </p>
+      </div>
+
+      <div className="flex-1 border-l border-slate-200 dark:border-slate-700 pl-3">
+        <span className="block w-full font-bold text-lg text-slate-800 dark:text-white">
+          {formatShortDate(checkOutDate)}
+        </span>
+        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+          {weekDays[checkOutDate.getDay()]}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function HotelCalendar() {
+  const { checkInDate, checkOutDate } = useHotelSearch();
 
   if (!checkInDate || !checkOutDate) {
     return (
@@ -41,37 +83,7 @@ export default function HotelCalendar() {
           </svg>
         </div>
 
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <DatePicker
-              className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
-              calendarClassName="mytrip-datepicker"
-              popperClassName="mytrip-datepicker-popper"
-              selected={checkInDate}
-              onChange={(date: Date | null) => date && setCheckInDate(date)}
-              dateFormat="MMM d, yyyy"
-              minDate={new Date()}
-            />
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-              {weekDays[checkInDate.getDay()]}
-            </p>
-          </div>
-
-          <div className="flex-1 border-l border-slate-200 dark:border-slate-700 pl-3">
-            <DatePicker
-              className="w-full bg-transparent font-bold text-lg outline-none text-slate-800 dark:text-white cursor-pointer"
-              calendarClassName="mytrip-datepicker"
-              popperClassName="mytrip-datepicker-popper"
-              selected={checkOutDate}
-              onChange={(date: Date | null) => date && setCheckOutDate(date)}
-              dateFormat="MMM d, yyyy"
-              minDate={new Date(checkInDate.getTime() + 86400000)}
-            />
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-              {weekDays[checkOutDate.getDay()]}
-            </p>
-          </div>
-        </div>
+        <HotelDatePickers />
       </div>
     </div>
   );
