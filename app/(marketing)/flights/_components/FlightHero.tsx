@@ -1,55 +1,65 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 
 export default function FlightHero() {
   return (
-    <section className="relative w-full h-[620px] md:h-[760px] lg:h-[860px] overflow-hidden">
-      {/* Background */}
-      <Image
-        src="/images/01.jpg"
-        alt="Flight background"
-        fill
-        priority
-        className="object-cover -z-20"
-      />
+    <section className="relative w-full overflow-hidden">
+      {/* Photography */}
+      <div className="absolute inset-0 -z-10">
+        <div className="hero-settle absolute inset-0">
+          <Image
+            src="/images/hero-flights.jpg"
+            alt="Aircraft waiting on the tarmac at golden hour, sun glowing behind its tail"
+            fill
+            preload
+            sizes="100vw"
+            className="object-cover object-[60%_75%]"
+          />
+        </div>
+        <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-slate-950/55 via-slate-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent" />
+      </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-slate-950/95 via-slate-950/55 to-slate-950/10" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950/70 via-transparent to-transparent" />
+      {/* Route line — sweeps from the headline toward the search card below.
+          Purely directional: it points at the search form, it names no route. */}
+      <svg
+        aria-hidden
+        viewBox="0 0 600 320"
+        fill="none"
+        className="pointer-events-none absolute -right-10 bottom-16 hidden w-[420px] -rotate-6 lg:block xl:w-[520px]"
+      >
+        <path
+          d="M20 40 C 220 60, 420 160, 560 288"
+          stroke="white"
+          strokeOpacity="0.45"
+          strokeWidth="1.5"
+          strokeDasharray="1 8"
+          strokeLinecap="round"
+        />
+        <circle cx="20" cy="40" r="5" fill="#7167FF" />
+        <circle cx="20" cy="40" r="10" stroke="#7167FF" strokeOpacity="0.4" />
+        <circle
+          cx="560"
+          cy="288"
+          r="5"
+          stroke="white"
+          strokeWidth="1.5"
+          fill="none"
+        />
+      </svg>
 
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-28 text-center sm:pb-36 lg:pb-40">
-        <div className="container mx-auto flex max-w-[1200px] flex-col items-center">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-md">
-            Departures &middot; Arrivals
-          </span>
+      <div className="relative mx-auto flex min-h-[540px] max-w-[1320px] flex-col justify-end px-6 pb-44 max-md:min-h-[520px] max-md:pb-40 sm:px-8 md:min-h-[620px] lg:min-h-[700px] lg:pb-52">
+        <h1 className="hero-reveal max-w-2xl text-4xl font-extrabold leading-[1.06] tracking-tight text-white sm:text-6xl sm:leading-[1.04] lg:text-7xl">
+          Your next departure is one search away.
+        </h1>
 
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Your Next Flight
-            <br />
-            <span className="text-[#7167FF]">Starts Right Here</span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-xl text-base text-white/80 sm:text-lg">
-            Every route, sorted your way. Find the seat that fits your plans
-            effortlessly.
-          </p>
-
-          {/* Flight-path divider — echoes the boarding-pass motif on the result cards below */}
-          <div className="mt-10 flex w-full max-w-xs items-center gap-3 sm:max-w-sm">
-            <span className="h-2 w-2 shrink-0 rounded-full border-2 border-white/40" />
-            <span className="h-px flex-1 border-t-2 border-dashed border-white/30" />
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="h-5 w-5 shrink-0 rotate-90 text-[#7167FF]"
-              fill="currentColor"
-            >
-              <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2.5 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-            </svg>
-            <span className="h-px flex-1 border-t-2 border-dashed border-white/30" />
-            <span className="h-2 w-2 shrink-0 rounded-full border-2 border-white/40" />
-          </div>
-        </div>
+        <p
+          className="hero-reveal mt-5 max-w-md text-base leading-relaxed text-white/85 sm:text-lg"
+          style={{ "--reveal-delay": "120ms" } as CSSProperties}
+        >
+          Compare airlines, cabins, and times across 6,000+ airports.
+        </p>
       </div>
     </section>
   );

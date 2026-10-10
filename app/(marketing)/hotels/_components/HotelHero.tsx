@@ -1,56 +1,75 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 
-export default function HotelHero() {
+interface HotelHeroProps {
+  staysCount?: number;
+  citiesCount?: number;
+}
+
+export default function HotelHero({ staysCount, citiesCount }: HotelHeroProps) {
+  const hasStats =
+    typeof staysCount === "number" &&
+    staysCount > 0 &&
+    typeof citiesCount === "number" &&
+    citiesCount > 0;
+
   return (
-    <section className="relative w-full h-[620px] md:h-[760px] lg:h-[860px] overflow-hidden">
-      {/* Background */}
-      {/* TODO: swap the placeholder below for the real hero image, e.g. /images/hotel-hero.jpg */}
-      <Image
-        src="/images/05.jpg"
-        alt="Hotel background"
-        fill
-        priority
-        className="object-cover -z-20"
-      />
-
-      {/* Overlay */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-slate-950/95 via-slate-950/55 to-slate-950/10" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950/70 via-transparent to-transparent" />
-
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-28 text-center sm:pb-36 lg:pb-40">
-        <div className="container mx-auto flex max-w-[1200px] flex-col items-center">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-md">
-            Stays &middot; Escapes
-          </span>
-
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Your Next Stay
-            <br />
-            <span className="text-[#7167FF]">Starts Right Here</span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-xl text-base text-white/80 sm:text-lg">
-            Every room, sorted your way. Find the stay that fits your plans
-            effortlessly.
-          </p>
-
-          {/* Divider — echoes the same motif used on the flights hero */}
-          <div className="mt-10 flex w-full max-w-xs items-center gap-3 sm:max-w-sm">
-            <span className="h-2 w-2 shrink-0 rounded-full border-2 border-white/40" />
-            <span className="h-px flex-1 border-t-2 border-dashed border-white/30" />
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="h-5 w-5 shrink-0 text-[#7167FF]"
-              fill="currentColor"
-            >
-              <path d="M7 13c0-2.76 2.24-5 5-5s5 2.24 5 5v3H7v-3zm-3 5h16v2H4v-2zM6 8a2 2 0 114 0 2 2 0 01-4 0z" />
-            </svg>
-            <span className="h-px flex-1 border-t-2 border-dashed border-white/30" />
-            <span className="h-2 w-2 shrink-0 rounded-full border-2 border-white/40" />
-          </div>
+    <section className="relative w-full overflow-hidden">
+      {/* Photography */}
+      <div className="absolute inset-0 -z-10">
+        <div className="hero-settle absolute inset-0">
+          <Image
+            src="/images/hero-hotels.jpg"
+            alt="Hotel pavilion with a lit pool at dusk under a deep blue sky"
+            fill
+            preload
+            sizes="100vw"
+            className="object-cover object-[50%_65%]"
+          />
         </div>
+        <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-slate-950/60 via-slate-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+      </div>
+
+      {/* Content — bottom-left anchored, leaving the pavilion to breathe on the right */}
+      <div className="relative mx-auto flex min-h-[540px] max-w-[1320px] flex-col justify-end px-6 pb-44 max-md:min-h-[520px] max-md:pb-40 sm:px-8 md:min-h-[620px] lg:min-h-[700px] lg:pb-52">
+        <h1 className="hero-reveal max-w-2xl text-4xl font-extrabold leading-[1.06] tracking-tight text-white sm:text-6xl sm:leading-[1.04] lg:text-7xl">
+          Find the stay that makes the trip.
+        </h1>
+
+        <p
+          className="hero-reveal mt-5 max-w-md text-base leading-relaxed text-white/85 sm:text-lg"
+          style={{ "--reveal-delay": "120ms" } as CSSProperties}
+        >
+          Real rooms, sorted by price, property type, and guest rating.
+        </p>
+
+        {hasStats && (
+          <dl
+            className="hero-reveal mt-8 flex items-center gap-8 border-t border-white/25 pt-5"
+            style={{ "--reveal-delay": "220ms" } as CSSProperties}
+          >
+            <div className="flex items-baseline gap-2">
+              <dt className="sr-only">Hotels available</dt>
+              <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
+                {staysCount.toLocaleString("en-US")}
+              </dd>
+              <dd className="text-sm text-white/75">stays</dd>
+            </div>
+            <div
+              className="h-8 w-px bg-white/25"
+              role="presentation"
+              aria-hidden
+            />
+            <div className="flex items-baseline gap-2">
+              <dt className="sr-only">Cities covered</dt>
+              <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
+                {citiesCount.toLocaleString("en-US")}
+              </dd>
+              <dd className="text-sm text-white/75">cities</dd>
+            </div>
+          </dl>
+        )}
       </div>
     </section>
   );

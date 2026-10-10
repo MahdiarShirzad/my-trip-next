@@ -92,10 +92,13 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
 
   const propertyTypeOptions = getPropertyTypeOptions(allHotels);
   const priceBounds = getPriceBounds(allHotels);
+  const citiesCount = new Set(
+    allHotels.map((hotel) => hotel.location?.city).filter(Boolean),
+  ).size;
 
   return (
     <main className="min-h-screen pb-24 transition-colors duration-300">
-      <HotelHero />
+      <HotelHero staysCount={hotelsCount} citiesCount={citiesCount} />
 
       <Suspense fallback={null}>
         <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">

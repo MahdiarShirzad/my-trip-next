@@ -72,17 +72,42 @@
   animation: fadeInUp 0.7s ease-out forwards;
 }
 
-@keyframes slowZoom {
+/* Tab-panel fade used by the homepage search card */
+@keyframes fadeIn {
   from {
-    transform: scale(1.05);
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s ease-out;
+}
+
+/* Hero entrance choreography.
+   Base state is fully visible; the animation only exists for users who
+   allow motion, so reduced-motion users get the finished composition. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-reveal {
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  .hero-settle {
+    animation: heroSettle 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
+@keyframes heroSettle {
+  from {
+    transform: scale(1.06);
   }
   to {
     transform: scale(1);
   }
-}
-
-.animate-bg-zoom {
-  animation: slowZoom 1.8s ease-out forwards;
 }
 
 @keyframes gradientShift {

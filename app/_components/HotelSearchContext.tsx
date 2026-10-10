@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+} from "react";
+import { useSearchParams } from "next/navigation";
 import type { RoomType } from "@/types/Hotel";
 
 interface HotelSearchContextValue {
@@ -34,7 +40,14 @@ export function HotelSearchProvider({
 }: {
   children: ReactNode;
 }) {
-  const [destinationCity, setDestinationCity] = useState("");
+  // Deep-link hand-off: heroes link here with ?destinationCity= so the
+  // search form opens pre-filled. useSearchParams suspends during static
+  // prerender, so the provider must sit inside a Suspense boundary.
+  const searchParams = useSearchParams();
+
+  const [destinationCity, setDestinationCity] = useState(
+    () => searchParams.get("destinationCity")?.trim() ?? "",
+  );
 
   const [checkInDate, setCheckInDateState] = useState<Date | null>(
     () => new Date(),

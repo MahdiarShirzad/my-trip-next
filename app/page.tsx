@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import FAQ from "./_components/FAQ";
 import Features from "./_components/Features";
 import FlightSection from "./_components/FlightSection";
@@ -10,7 +11,10 @@ export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-start w-full">
       <Hero />
-      <ProductBox />
+      {/* ProductBox's hotel search reads useSearchParams, which suspends during prerender */}
+      <Suspense fallback={null}>
+        <ProductBox />
+      </Suspense>
       <Features />
       <FlightSection />
       <HotelSection />
