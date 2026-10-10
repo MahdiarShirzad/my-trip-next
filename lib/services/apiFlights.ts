@@ -73,6 +73,8 @@ export function buildBackendFlightQuery(
 }
 
 export function getLatestFlights() {
+  // Curated homepage list — marketing content, refreshes every 5 minutes
+  // (matches the homepage's ISR window).
   return apiRequest<FlightsResponse>("/flights/latest", {
     next: { revalidate: 300 },
   } as RequestInit);
@@ -80,8 +82,10 @@ export function getLatestFlights() {
 
 export function getAllFlights(searchParams?: Record<string, string>) {
   const query = searchParams ? `?${new URLSearchParams(searchParams)}` : "";
+  // Search results and filter bounds feed booking decisions, so keep the
+  // staleness window short. Next serves stale-while-revalidate per URL.
   return apiRequest<FlightsResponse>(`/flights${query}`, {
-    next: { revalidate: 300 },
+    next: { revalidate: 60 },
   } as RequestInit);
 }
 
@@ -93,6 +97,8 @@ export function getFlight(idOrSlug: string) {
 }
 
 export function getFlightForBooking(idOrSlug: string) {
+  // Transactional: price and seat availability must be current at booking
+  // time — never cache.
   return apiRequest<{ status: string; data: { flight: Flight } }>(
     `/flights/${idOrSlug}`,
     { cache: "no-store" } as RequestInit,

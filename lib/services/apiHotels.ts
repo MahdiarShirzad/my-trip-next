@@ -67,6 +67,8 @@ export function buildBackendHotelQuery(
 }
 
 export function getLatestHotels() {
+  // Curated homepage list — marketing content, refreshes every 5 minutes
+  // (matches the homepage's ISR window).
   return apiRequest<HotelsResponse>("/hotels/latest", {
     next: { revalidate: 300 },
   } as RequestInit);
@@ -74,8 +76,10 @@ export function getLatestHotels() {
 
 export function getAllHotels(searchParams?: Record<string, string>) {
   const query = searchParams ? `?${new URLSearchParams(searchParams)}` : "";
+  // Search results and filter bounds feed booking decisions, so keep the
+  // staleness window short. Next serves stale-while-revalidate per URL.
   return apiRequest<HotelsResponse>(`/hotels${query}`, {
-    next: { revalidate: 300 },
+    next: { revalidate: 60 },
   } as RequestInit);
 }
 
@@ -87,6 +91,8 @@ export function getHotel(idOrSlug: string) {
 }
 
 export function getHotelForBooking(idOrSlug: string) {
+  // Transactional: price and room availability must be current at booking
+  // time — never cache.
   return apiRequest<{ status: string; data: { hotel: Hotel } }>(
     `/hotels/${idOrSlug}`,
     { cache: "no-store" } as RequestInit,

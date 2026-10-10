@@ -1,18 +1,77 @@
 import type { CSSProperties } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 
-interface HotelHeroProps {
-  staysCount?: number;
-  citiesCount?: number;
+export interface HotelHeroStats {
+  staysCount: number;
+  citiesCount: number;
 }
 
-export default function HotelHero({ staysCount, citiesCount }: HotelHeroProps) {
-  const hasStats =
-    typeof staysCount === "number" &&
-    staysCount > 0 &&
-    typeof citiesCount === "number" &&
-    citiesCount > 0;
+interface HotelHeroProps {
+  statsPromise?: Promise<HotelHeroStats>;
+}
 
+async function HotelHeroStatsBlock({
+  statsPromise,
+}: {
+  statsPromise: Promise<HotelHeroStats>;
+}) {
+  const { staysCount, citiesCount } = await statsPromise;
+
+  const hasStats = staysCount > 0 && citiesCount > 0;
+
+  if (!hasStats) {
+    return null;
+  }
+
+  return (
+    <dl
+      className="hero-reveal mt-8 flex items-center gap-8 border-t border-white/25 pt-5"
+      style={{ "--reveal-delay": "220ms" } as CSSProperties}
+    >
+      <div className="flex items-baseline gap-2">
+        <dt className="sr-only">Hotels available</dt>
+        <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
+          {staysCount.toLocaleString("en-US")}
+        </dd>
+        <dd className="text-sm text-white/75">stays</dd>
+      </div>
+      <div
+        className="h-8 w-px bg-white/25"
+        role="presentation"
+        aria-hidden
+      />
+      <div className="flex items-baseline gap-2">
+        <dt className="sr-only">Cities covered</dt>
+        <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
+          {citiesCount.toLocaleString("en-US")}
+        </dd>
+        <dd className="text-sm text-white/75">cities</dd>
+      </div>
+    </dl>
+  );
+}
+
+function HotelHeroStatsFallback() {
+  return (
+    <div
+      className="mt-8 flex animate-pulse items-center gap-8 border-t border-white/25 pt-5"
+      aria-hidden="true"
+    >
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-14 rounded bg-white/20" />
+        <div className="text-sm text-white/75">stays</div>
+      </div>
+      <div className="h-8 w-px bg-white/25" />
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-14 rounded bg-white/20" />
+        <div className="text-sm text-white/75">cities</div>
+      </div>
+    </div>
+  );
+}
+
+export default function HotelHero({ statsPromise }: HotelHeroProps) {
   return (
     <section className="relative w-full overflow-hidden">
       {/* Photography */}
@@ -44,31 +103,10 @@ export default function HotelHero({ staysCount, citiesCount }: HotelHeroProps) {
           Real rooms, sorted by price, property type, and guest rating.
         </p>
 
-        {hasStats && (
-          <dl
-            className="hero-reveal mt-8 flex items-center gap-8 border-t border-white/25 pt-5"
-            style={{ "--reveal-delay": "220ms" } as CSSProperties}
-          >
-            <div className="flex items-baseline gap-2">
-              <dt className="sr-only">Hotels available</dt>
-              <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
-                {staysCount.toLocaleString("en-US")}
-              </dd>
-              <dd className="text-sm text-white/75">stays</dd>
-            </div>
-            <div
-              className="h-8 w-px bg-white/25"
-              role="presentation"
-              aria-hidden
-            />
-            <div className="flex items-baseline gap-2">
-              <dt className="sr-only">Cities covered</dt>
-              <dd className="text-xl font-bold tabular-nums text-white sm:text-2xl">
-                {citiesCount.toLocaleString("en-US")}
-              </dd>
-              <dd className="text-sm text-white/75">cities</dd>
-            </div>
-          </dl>
+        {statsPromise && (
+          <Suspense fallback={<HotelHeroStatsFallback />}>
+            <HotelHeroStatsBlock statsPromise={statsPromise} />
+          </Suspense>
         )}
       </div>
     </section>

@@ -1,24 +1,18 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import {
-  filterFlights,
   FlightSearchParams,
   getAirlineOptions,
   getPriceBounds,
-  sortFlights,
 } from "@/app/_components/flight-filters";
 import FlightFilters from "@/app/(marketing)/flights/_components/FlightFilters";
 import FlightHero from "@/app/(marketing)/flights/_components/FlightHero";
-import FlightResultCard from "@/app/(marketing)/flights/_components/FlightResultCard";
 import FlightResultCardSkeleton from "./_components/FlightResultCardSkeleton";
 import FlightResultsHeader from "@/app/(marketing)/flights/_components/FlightResultsHeader";
 import FlightSearch from "@/app/(marketing)/flights/_components/FlightSearch";
 import FlightSort from "@/app/(marketing)/flights/_components/FlightSort";
 import { adaptFlights } from "@/lib/flight-adapter";
-import {
-  buildBackendFlightQuery,
-  getAllFlights,
-} from "@/lib/services/apiFlights";
+import { getAllFlights } from "@/lib/services/apiFlights";
 import FlightResultsSection from "./_components/FlightResultsSection";
 
 export const metadata: Metadata = {
@@ -41,62 +35,46 @@ function ResultsListSkeleton() {
   );
 }
 
-async function FlightResultsList({
-  searchParams,
-}: {
-  searchParams: Promise<FlightSearchParams>;
-}) {
-  const params = await searchParams;
-
-  const backendQuery = buildBackendFlightQuery(
-    params as Record<string, string | string[] | undefined>,
-  );
-  const res = await getAllFlights(backendQuery);
-  const data = res?.data?.flights ?? [];
-
-  const allFlights = adaptFlights(data);
-  const filtered = filterFlights(allFlights, params);
-  const results = sortFlights(filtered, params.sort);
-
-  if (results.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center px-6 py-24 text-center sm:py-32">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#7167FF]/10">
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="h-10 w-10 text-[#7167FF]"
-            fill="currentColor"
-          >
-            <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2.5 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-          </svg>
-        </div>
-        <p className="text-2xl font-bold text-slate-900 dark:text-white">
-          No flights match your filters
-        </p>
-        <p className="mt-3 text-base text-slate-500 dark:text-slate-400">
-          Try widening your price range or clearing a filter.
-        </p>
+function FiltersSkeleton() {
+  return (
+    <aside className="w-full shrink-0 animate-pulse rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7 lg:w-[300px]">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-6 w-20 rounded-lg bg-slate-100 dark:bg-slate-800" />
       </div>
-    );
-  }
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-4 w-full rounded-lg bg-slate-100 dark:bg-slate-800"
+          />
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+async function FlightFiltersPanel({
+  allFlightsPromise,
+}: {
+  allFlightsPromise: ReturnType<typeof getAllFlights>;
+}) {
+  const res = await allFlightsPromise;
+  const allFlights = adaptFlights(res?.data?.flights ?? []);
+
+  const airlineOptions = getAirlineOptions(allFlights);
+  const priceBounds = getPriceBounds(allFlights);
 
   return (
-    <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      {results.map((flight) => (
-        <FlightResultCard key={flight._id} flight={flight} />
-      ))}
-    </div>
+    <FlightFilters airlineOptions={airlineOptions} priceBounds={priceBounds} />
   );
 }
 
 export default async function FlightsPage({ searchParams }: FlightsPageProps) {
-  const res = await getAllFlights();
-  const data = res?.data?.flights ?? [];
-  const allFlights = adaptFlights(data);
-
-  const airlineOptions = getAirlineOptions(allFlights);
-  const priceBounds = getPriceBounds(allFlights);
+  // Start the filter-data request up front so it overlaps the results
+  // request made inside the Suspense boundary. The shell below renders
+  // (and the hero image starts loading) without waiting on the API.
+  const allFlightsPromise = getAllFlights();
 
   return (
     <main className="min-h-screen pb-24 transition-colors duration-300">
@@ -112,10 +90,9 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
         <div className="mx-auto max-w-[1320px] px-6 py-16">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
             <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
-              <FlightFilters
-                airlineOptions={airlineOptions}
-                priceBounds={priceBounds}
-              />
+              <Suspense fallback={<FiltersSkeleton />}>
+                <FlightFiltersPanel allFlightsPromise={allFlightsPromise} />
+              </Suspense>
             </aside>
 
             <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">

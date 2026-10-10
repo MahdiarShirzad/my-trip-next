@@ -8,9 +8,9 @@ import {
   sortHotels,
 } from "@/lib/hotel-filters";
 import HotelFilters from "@/app/(marketing)/hotels/_components/HotelFilters";
-import HotelHero from "@/app/(marketing)/hotels/_components/HotelHero";
+import HotelHero, { HotelHeroStats } from "@/app/(marketing)/hotels/_components/HotelHero";
 import HotelResultCard from "@/app/(marketing)/hotels/_components/HotelResultCard";
-import HotelResultCardSkeleton from "@/app/(marketing)/hotels/_components/HotelResultCardSkeleton";
+import HotelResultCardSkeleton from "./_components/HotelResultCardSkeleton";
 import HotelResultsHeader from "@/app/(marketing)/hotels/_components/HotelResultsHeader";
 import HotelSearch from "@/app/(marketing)/hotels/_components/HotelSearch";
 import HotelSort from "@/app/(marketing)/hotels/_components/HotelSort";
@@ -32,6 +32,37 @@ function ResultsListSkeleton() {
       {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
         <HotelResultCardSkeleton key={index} />
       ))}
+    </div>
+  );
+}
+
+function FiltersSkeleton() {
+  return (
+    <aside className="w-full shrink-0 animate-pulse rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7 lg:w-[300px]">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-6 w-20 rounded-lg bg-slate-100 dark:bg-slate-800" />
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-4 w-full rounded-lg bg-slate-100 dark:bg-slate-800"
+          />
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+function ResultsHeaderSkeleton() {
+  return (
+    <div className="flex animate-pulse flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-slate-50/60 px-6 py-5 dark:border-slate-800 dark:bg-slate-950/40 sm:px-7">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-5 w-32 rounded-lg bg-slate-100 dark:bg-slate-800" />
+      </div>
+      <div className="h-10 w-36 rounded-xl bg-slate-100 dark:bg-slate-800" />
     </div>
   );
 }
@@ -84,21 +115,59 @@ async function HotelResultsList({
   );
 }
 
-export default async function HotelsPage({ searchParams }: HotelsPageProps) {
-  const res = await getAllHotels();
-  const hotelsCount = res?.results ?? 0;
-
+async function HotelFiltersPanel({
+  allHotelsPromise,
+}: {
+  allHotelsPromise: ReturnType<typeof getAllHotels>;
+}) {
+  const res = await allHotelsPromise;
   const allHotels = res?.data?.hotels ?? [];
 
   const propertyTypeOptions = getPropertyTypeOptions(allHotels);
   const priceBounds = getPriceBounds(allHotels);
-  const citiesCount = new Set(
-    allHotels.map((hotel) => hotel.location?.city).filter(Boolean),
-  ).size;
+
+  return (
+    <HotelFilters
+      propertyTypeOptions={propertyTypeOptions}
+      priceBounds={priceBounds}
+    />
+  );
+}
+
+async function HotelResultsCount({
+  allHotelsPromise,
+}: {
+  allHotelsPromise: ReturnType<typeof getAllHotels>;
+}) {
+  const res = await allHotelsPromise;
+  const hotelsCount = res?.results ?? 0;
+
+  return (
+    <HotelResultsHeader count={hotelsCount} sortSlot={<HotelSort />} />
+  );
+}
+
+export default async function HotelsPage({ searchParams }: HotelsPageProps) {
+  // Start the list/filters request up front so it overlaps the results
+  // request made inside the Suspense boundary. The shell below renders
+  // (and the hero image starts loading) without waiting on the API.
+  const allHotelsPromise = getAllHotels();
+
+  const statsPromise = allHotelsPromise.then(
+    (res): HotelHeroStats => {
+      const allHotels = res?.data?.hotels ?? [];
+      return {
+        staysCount: res?.results ?? 0,
+        citiesCount: new Set(
+          allHotels.map((hotel) => hotel.location?.city).filter(Boolean),
+        ).size,
+      };
+    },
+  );
 
   return (
     <main className="min-h-screen pb-24 transition-colors duration-300">
-      <HotelHero staysCount={hotelsCount} citiesCount={citiesCount} />
+      <HotelHero statsPromise={statsPromise} />
 
       <Suspense fallback={null}>
         <div className="relative z-10 mx-auto max-w-[1320px] px-6 -mt-24 sm:-mt-32 lg:-mt-36">
@@ -110,17 +179,15 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         <div className="mx-auto max-w-[1320px] px-6 py-16">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
             <aside className="w-full lg:sticky lg:top-24 lg:w-[300px] lg:shrink-0 xl:w-[320px]">
-              <HotelFilters
-                propertyTypeOptions={propertyTypeOptions}
-                priceBounds={priceBounds}
-              />
+              <Suspense fallback={<FiltersSkeleton />}>
+                <HotelFiltersPanel allHotelsPromise={allHotelsPromise} />
+              </Suspense>
             </aside>
 
             <section className="min-w-0 flex-1 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <HotelResultsHeader
-                count={hotelsCount}
-                sortSlot={<HotelSort />}
-              />
+              <Suspense fallback={<ResultsHeaderSkeleton />}>
+                <HotelResultsCount allHotelsPromise={allHotelsPromise} />
+              </Suspense>
 
               <Suspense fallback={<ResultsListSkeleton />}>
                 <HotelResultsList searchParams={searchParams} />

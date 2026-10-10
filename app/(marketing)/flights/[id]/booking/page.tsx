@@ -3,7 +3,7 @@ import FlightBookingClient from "@/app/(marketing)/flights/[id]/booking/_compone
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
-import { getFlight, getFlightForBooking } from "@/lib/services/apiFlights";
+import { getFlightForBooking } from "@/lib/services/apiFlights";
 
 export async function generateMetadata({
   params,
@@ -11,7 +11,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const res = await getFlight(id);
+  // Same no-store fetch the page uses — keeps metadata consistent with the
+  // fresh booking data and lets both share one request-memoized call.
+  const res = await getFlightForBooking(id);
   const flight = res?.data?.flight;
 
   if (!flight) {
