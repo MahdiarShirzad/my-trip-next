@@ -17,6 +17,27 @@ import FlightResultsSection from "./_components/FlightResultsSection";
 
 export const metadata: Metadata = {
   title: "Flights",
+  description:
+    "Search and compare flights across airlines and cabins. Filter by price, departure window, and airline, then book your seat on My Trip.",
+  alternates: {
+    canonical: "/flights",
+  },
+  openGraph: {
+    title: "Flights | My Trip",
+    description:
+      "Search and compare flights across airlines and cabins. Filter by price, departure window, and airline, then book your seat.",
+    siteName: "My Trip",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/hero-flights.jpg",
+        width: 1800,
+        height: 1151,
+        alt: "Aircraft waiting on the tarmac at golden hour",
+      },
+    ],
+  },
 };
 
 interface FlightsPageProps {

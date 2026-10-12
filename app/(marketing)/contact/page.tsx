@@ -5,6 +5,19 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact",
+  description:
+    "Get in touch with the My Trip team. Ask about flights, hotels, bookings, or your account — we are happy to help.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact | My Trip",
+    description:
+      "Get in touch with the My Trip team about flights, hotels, bookings, or your account.",
+    siteName: "My Trip",
+    type: "website",
+    locale: "en_US",
+  },
 };
 
 export default function ContactPage() {

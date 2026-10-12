@@ -20,6 +20,15 @@ export async function generateMetadata({
   return {
     title: `Booking ${hotel.name} | ${hotel.location.city}`,
     description: `Book ${hotel.name} in ${hotel.location.city}. ${hotel.starRating}-star hotel with prices starting from ${hotel.minPrice}.`,
+    // Transactional booking step — keep it out of the search index.
+    robots: { index: false, follow: false },
+    openGraph: {
+      title: `Booking ${hotel.name} | ${hotel.location.city}`,
+      description: `Book ${hotel.name} in ${hotel.location.city}. ${hotel.starRating}-star hotel with prices starting from ${hotel.minPrice}.`,
+      siteName: "My Trip",
+      type: "website",
+      locale: "en_US",
+    },
   };
 }
 

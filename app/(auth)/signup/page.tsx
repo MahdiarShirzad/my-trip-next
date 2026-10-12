@@ -4,6 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Signup",
+  robots: { index: false, follow: true },
 };
 
 export default function SignupPage() {

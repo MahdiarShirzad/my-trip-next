@@ -12,15 +12,29 @@ const vazirmatn = Vazirmatn({
   display: "swap",
 });
 
+// Absolute URLs (canonical, Open Graph) resolve against this when set.
+// Left unset in development so nothing is hardcoded to a guessed domain.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export const metadata: Metadata = {
   title: {
     default: "My Trip",
     template: "%s | My Trip",
   },
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
+  applicationName: "My Trip",
   icons: {
     icon: "/images/favicon.png",
   },
   description: "Book flights and hotels with My Trip",
+  openGraph: {
+    siteName: "My Trip",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({

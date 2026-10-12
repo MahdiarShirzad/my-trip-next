@@ -18,6 +18,27 @@ import { buildBackendHotelQuery, getAllHotels } from "@/lib/services/apiHotels";
 
 export const metadata: Metadata = {
   title: "Hotels",
+  description:
+    "Find hotels and stays sorted by price, property type, and guest rating. Filter by amenities, star rating, and room type, then book on My Trip.",
+  alternates: {
+    canonical: "/hotels",
+  },
+  openGraph: {
+    title: "Hotels | My Trip",
+    description:
+      "Find hotels and stays sorted by price, property type, and guest rating. Filter by amenities, star rating, and room type.",
+    siteName: "My Trip",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/hero-hotels.jpg",
+        width: 1800,
+        height: 1200,
+        alt: "Hotel pavilion with a lit pool at dusk under a deep blue sky",
+      },
+    ],
+  },
 };
 
 interface HotelsPageProps {

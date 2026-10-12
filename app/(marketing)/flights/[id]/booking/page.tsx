@@ -27,6 +27,17 @@ export async function generateMetadata({
     description: `Book flight ${flight.flightNumber} from ${flight.origin.city} to ${flight.destination.city}. Departure: ${new Date(
       flight.departureTime,
     ).toLocaleString()}`,
+    // Transactional booking step — keep it out of the search index.
+    robots: { index: false, follow: false },
+    openGraph: {
+      title: `${flight.airline} ${flight.flightNumber} | ${flight.origin.city} → ${flight.destination.city}`,
+      description: `Book flight ${flight.flightNumber} from ${flight.origin.city} to ${flight.destination.city}. Departure: ${new Date(
+        flight.departureTime,
+      ).toLocaleString()}`,
+      siteName: "My Trip",
+      type: "website",
+      locale: "en_US",
+    },
   };
 }
 

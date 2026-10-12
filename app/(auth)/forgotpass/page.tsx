@@ -4,6 +4,7 @@ import ForgotPasswordHeader from "../_components/ForgotPasswordHeader";
 
 export const metadata: Metadata = {
   title: "Forgot Password",
+  robots: { index: false, follow: true },
 };
 
 export default function ForgotPasswordPage() {

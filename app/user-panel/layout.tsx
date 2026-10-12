@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import UserSidebar from "./_components/UserSidebar";
+
+// Private, per-user area — never index it.
+export const metadata: Metadata = {
+  title: "My Account",
+  robots: { index: false, follow: false },
+};
 
 export default function UserPanelLayout({
   children,
