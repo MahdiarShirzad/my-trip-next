@@ -123,3 +123,18 @@
   background-size: 200% 200%;
   animation: gradientShift 6s ease infinite alternate;
 }
+
+/* 404 route illustration: the dotted trail drifts toward the destination.
+   The artwork is complete without motion, so reduced-motion users simply
+   get the static route. */
+@keyframes routeDash {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .route-dash {
+    animation: routeDash 1.8s linear infinite;
+  }
+}
